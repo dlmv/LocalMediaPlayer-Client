@@ -1,0 +1,36 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_reload"
+        android:icon="@drawable/reload"
+        android:title="@string/menu_reload"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_bookmarks"
+        android:icon="@android:drawable/btn_star_big_on"
+        android:title="@string/menu_bookmarks"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_search"
+        android:icon="@drawable/search"
+        android:title="@string/menu_search"
+        android:showAsAction="always" />
+    <item
+        android:id="@+id/menu_filter"
+        android:icon="@drawable/filter"
+        android:title="@string/menu_filter"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/menu_open"
+        android:icon="@drawable/open"
+        android:title="@string/menu_open"
+        android:showAsAction="never" />
+
+
+    <item
+        android:id="@+id/menu_logins"
+        android:icon="@drawable/logins"
+        android:title="@string/menu_logins"
+        android:showAsAction="never" />
+
+</menu>
