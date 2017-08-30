@@ -10,9 +10,13 @@ public class NetworkException extends Exception {
 
     public NetworkException(Throwable cause) {
         super(cause);
+        if (cause instanceof NetworkException) {
+            myUnauthorized = ((NetworkException) cause).myUnauthorized;
+        }
     }
 
     NetworkException() {
+        super();
         myUnauthorized = true;
     }
 

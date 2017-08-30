@@ -75,7 +75,7 @@ public class ConnectActivity extends Activity {
 				try {
 					NetworkManager.Instance().perform(request);
 					onDialogResult(true, dialog, server, port);
-				} catch (NetworkException e)  {
+				} catch (final NetworkException e)  {
 					if (e.isUnauthorized()) {
 						runOnUiThread(new Runnable() {
 							@Override
@@ -101,7 +101,12 @@ public class ConnectActivity extends Activity {
 												try {
 													NetworkManager.Instance().perform(request);
 													onDialogResult(true, dialog, server, port);
-												} catch (NetworkException e)  {
+												} catch (final NetworkException e)  {
+													runOnUiThread(new Runnable() {
+														public void run() {
+															Toast.makeText(ConnectActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(ConnectActivity.this), Toast.LENGTH_LONG).show();
+														}
+													});
 													onDialogResult(false, dialog, server, port);
 												}
 											}
@@ -117,6 +122,11 @@ public class ConnectActivity extends Activity {
 						});
 						return;
 					}
+					runOnUiThread(new Runnable() {
+						public void run() {
+							Toast.makeText(ConnectActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(ConnectActivity.this), Toast.LENGTH_LONG).show();
+						}
+					});
 					onDialogResult(false, dialog, server, port);
 					e.printStackTrace();
 				}
@@ -175,22 +185,6 @@ public class ConnectActivity extends Activity {
 						}
 					});
 					d.show();
-				}
-			});
-		} else {
-			runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					new AlertDialog.Builder(ConnectActivity.this)
-					.setMessage(getResources().getString(R.string.unableConnect))
-					.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog1, int which) {
-							dialog1.dismiss();
-
-						}
-					})
-					.show();
 				}
 			});
 		}
