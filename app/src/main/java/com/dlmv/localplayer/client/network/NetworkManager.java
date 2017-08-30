@@ -43,8 +43,8 @@ public class NetworkManager {
 			String us = request.URL + "?" + createQueryStringForParameters(request.PostParameters);
 			URL url = new URL(us);
 			HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-			urlConnection.setReadTimeout(10000);
-			urlConnection.setConnectTimeout(15000);
+			urlConnection.setReadTimeout(20000);
+			urlConnection.setConnectTimeout(30000);
 			try {
 				int responseCode;
 				try {

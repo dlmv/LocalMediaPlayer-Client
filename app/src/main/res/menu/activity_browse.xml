@@ -7,7 +7,7 @@
         android:showAsAction="always" />
     <item
         android:id="@+id/menu_bookmarks"
-        android:icon="@android:drawable/btn_star_big_on"
+        android:icon="@android:drawable/btn_star_big_off"
         android:title="@string/menu_bookmarks"
         android:showAsAction="always" />
     <item
