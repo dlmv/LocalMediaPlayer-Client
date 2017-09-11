@@ -37,6 +37,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	private final int STOPAFTER_OPTION = 4;
 	private final int PAUSEAFTER_OPTION = 5;
 	private final int NOAFTER_OPTION = 6;
+	private final int REMOVE_BEFORE_OPTION = 7;
+	private final int REMOVE_AFTER_OPTION = 8;
 
 	private PlayListAdapter myAdapter;
 	private ArrayList<PlayerStatus.PlaylistItem> myPlayList = new ArrayList<>();
@@ -705,6 +707,12 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		menu.add(Menu.NONE, PLAY_OPTION, Menu.NONE, getResources().getString(R.string.play));
 		menu.add(Menu.NONE, OPEN_OPTION, Menu.NONE, getResources().getString(R.string.openFolder));
 		menu.add(Menu.NONE, REMOVE_OPTION, Menu.NONE, getResources().getString(R.string.remove));
+		if (pos > 0) {
+			menu.add(Menu.NONE, REMOVE_BEFORE_OPTION, Menu.NONE, getResources().getString(R.string.removeBefore));
+		}
+		if (pos < myPlayList.size() - 1) {
+			menu.add(Menu.NONE, REMOVE_AFTER_OPTION, Menu.NONE, getResources().getString(R.string.removeAfter));
+		}
 		menu.add(Menu.NONE, CLEAR_OPTION, Menu.NONE, getResources().getString(R.string.clear));
 		menu.add(Menu.NONE, STOPAFTER_OPTION, Menu.NONE, getResources().getString(R.string.stopAfter));
 		menu.add(Menu.NONE, PAUSEAFTER_OPTION, Menu.NONE, getResources().getString(R.string.pauseAfter));
@@ -728,7 +736,24 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 		if (item.getItemId() == REMOVE_OPTION) {
 			NetworkRequest request = getRequest("remove");
-			request.addPostParameter("num", Integer.toString(position));
+			request.addPostParameter("start", Integer.toString(position));
+			request.addPostParameter("finish", Integer.toString(position));
+			performRequest(request, false);
+			myPlayList.remove(position);
+			myAdapter.notifyDataSetChanged();
+		}
+		if (item.getItemId() == REMOVE_BEFORE_OPTION) {
+			NetworkRequest request = getRequest("remove");
+			request.addPostParameter("start", Integer.toString(0));
+			request.addPostParameter("finish", Integer.toString(position - 1));
+			performRequest(request, false);
+			myPlayList.remove(position);
+			myAdapter.notifyDataSetChanged();
+		}
+		if (item.getItemId() == REMOVE_AFTER_OPTION) {
+			NetworkRequest request = getRequest("remove");
+			request.addPostParameter("start", Integer.toString(position + 1));
+			request.addPostParameter("finish", Integer.toString(myPlayList.size() - 1));
 			performRequest(request, false);
 			myPlayList.remove(position);
 			myAdapter.notifyDataSetChanged();

@@ -37,6 +37,8 @@
     <string name="enqueue">Enqueue</string>
     <string name="openFolder">Open containing folder</string>
     <string name="remove">Remove</string>
+    <string name="removeBefore">Remove before</string>
+    <string name="removeAfter">Remove after</string>
     <string name="clear">Clear all</string>
     <string name="stopAfter">Stop after this</string>
     <string name="pauseAfter">Pause after this</string>
