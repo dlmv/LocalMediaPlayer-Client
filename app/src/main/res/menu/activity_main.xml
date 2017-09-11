@@ -6,6 +6,11 @@
         android:showAsAction="always"
         android:title="@string/menu_connect"/>
     <item
+        android:id="@+id/menu_connected"
+        android:icon="@drawable/connected"
+        android:showAsAction="always"
+        android:title="@string/menu_connect"/>
+    <item
         android:id="@+id/menu_reload"
         android:icon="@drawable/reload"
         android:showAsAction="always"

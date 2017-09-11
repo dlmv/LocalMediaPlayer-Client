@@ -264,6 +264,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				invalidateOptionsMenu();
 				ImageButton b = findViewById(R.id.local_button);
 				b.setEnabled(ApplicationUtil.Data.serverUri != null);
 				ImageButton b1 = findViewById(R.id.shared_button);
@@ -336,6 +337,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_connect).setVisible(ApplicationUtil.Data.serverUri == null);
+		menu.findItem(R.id.menu_connected).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_reload).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_open).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_volume).setVisible(ApplicationUtil.Data.serverUri != null);
@@ -345,7 +348,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.menu_connect) {
+		if (item.getItemId() == R.id.menu_connect || item.getItemId() == R.id.menu_connected) {
 			connect();
 		}
 		if (item.getItemId() == R.id.menu_reload) {
