@@ -174,7 +174,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				myPlayBarIsAdjusting = false;
-				if (myValueToSet != -1 && myStatus.myRadioUri == null) {
+				if (myValueToSet != -1) {
 					final NetworkRequest request = getRequest("seekto");
 					request.addPostParameter("num", Integer.toString(myTrackNum));
 					request.addPostParameter("position", Integer.toString(myValueToSet * 1000));
@@ -218,7 +218,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		nextButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (myStatus.myRadioUri == null && (myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo + 1) < myPlayList.size()) {
+				if ((myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo + 1) < myPlayList.size()) {
 					NetworkRequest request = getRequest("playnum");
 					request.addPostParameter("num", Integer.toString(myStatus.myCurrentTrackNo + 1));
 					performRequest(request, false);
@@ -228,7 +228,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		prevButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (myStatus.myRadioUri == null && (myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo - 1) >= 0) {
+				if ((myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo - 1) >= 0) {
 					NetworkRequest request = getRequest("playnum");
 					request.addPostParameter("num", Integer.toString(myStatus.myCurrentTrackNo - 1));
 					performRequest(request, false);
@@ -238,11 +238,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		myPlaytypeButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (myStatus.myRadioUri == null) {
-					NetworkRequest request = getRequest("setplaytype");
-					request.addPostParameter("type", myStatus.getNextType().name());
-					performRequest(request, false);
-				}
+				NetworkRequest request = getRequest("setplaytype");
+				request.addPostParameter("type", myStatus.getNextType().name());
+				performRequest(request, false);
 			}
 		});
 		Timer tickTimer = new Timer();

@@ -3,8 +3,15 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    tools:context=".ConnectActivity" >
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/infoText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:layout_width="fill_parent"

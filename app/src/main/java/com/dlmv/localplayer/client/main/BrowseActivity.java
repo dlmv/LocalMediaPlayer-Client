@@ -262,10 +262,11 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		}
 		mySearchDialog.dismiss();
 		if (!res.myValid) {
-			if ("loginNeeded".equals(res.myCause)) {
+			if (res.myCause.startsWith("loginNeeded:")) {
+				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
 				runOnUiThread(new Runnable() {
 					public void run() {
-						showLoginDialog(myLocationToOpen.Path);
+						showLoginDialog(myLocationToOpen, share);
 					}
 				});
 				return;
@@ -450,10 +451,13 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	}
 	
 	
-	private void showLoginDialog(final String path) {
+	private void showLoginDialog(final Location location, final String share) {
 		View dialogView = View.inflate(this, R.layout.login_dialog, null);
 		((TextView) dialogView.findViewById(R.id.loginText)).setText(getResources().getString(R.string.login));
 		((TextView) dialogView.findViewById(R.id.passwordText)).setText(getResources().getString(R.string.password));
+		TextView info = dialogView.findViewById(R.id.infoText);
+		info.setText(getResources().getString(R.string.shareLoginRequired).replaceAll("%s", share));
+		info.setVisibility(View.VISIBLE);
 		final EditText inputL = dialogView.findViewById(R.id.login);
 		final EditText inputP = dialogView.findViewById(R.id.password);
 		inputL.setText("");
@@ -465,7 +469,12 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				final String login = inputL.getText().toString();
 				final String password = inputP.getText().toString();
 				dialog1.dismiss();
-				open(new Location(path, ""), login, password);
+				open(location, login, password);
+			}
+		}).setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog1, int which) {
+				dialog1.dismiss();
 			}
 		});
 		d.setView(dialogView);
