@@ -80,10 +80,13 @@ public class ShareLoginsActivity extends DBListActivity<String> {
 	@Override
 	protected View setAdapterView(String b, View convertView, ViewGroup parent, LayoutInflater inflater) {
 		if (convertView == null) {
-			convertView = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+			convertView = inflater.inflate(android.R.layout.simple_expandable_list_item_2, parent, false);
 		}
 		TextView title = convertView.findViewById(android.R.id.text1);
-		title.setText(b);
+		TextView subtitle = convertView.findViewById(android.R.id.text2);
+		int divider = b.lastIndexOf("/");
+		title.setText(b.substring(divider+1));
+		subtitle.setText(b);
 		return convertView;
 	}
 

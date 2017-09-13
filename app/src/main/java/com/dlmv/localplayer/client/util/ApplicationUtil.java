@@ -3,8 +3,13 @@ package com.dlmv.localplayer.client.util;
 import java.util.*;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.*;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
+import com.dlmv.localmediaplayer.client.R;
 import com.dlmv.localplayer.client.main.BrowseActivity;
 import com.dlmv.localplayer.client.db.BookmarksActivity;
 
@@ -126,6 +131,40 @@ public abstract class ApplicationUtil {
 			sec = "0" + sec;
 		}
 		return res + min + ":" + sec;
+	}
+
+	public interface LoginRunnable {
+		void run(String login, String password);
+	}
+
+	public static void showLoginDialog(Context c, final String share, final ApplicationUtil.LoginRunnable runnable) {
+		View dialogView = View.inflate(c, R.layout.login_dialog, null);
+		((TextView) dialogView.findViewById(R.id.loginText)).setText(c.getResources().getString(R.string.login));
+		((TextView) dialogView.findViewById(R.id.passwordText)).setText(c.getResources().getString(R.string.password));
+		TextView info = dialogView.findViewById(R.id.infoText);
+		info.setText(c.getResources().getString(R.string.shareLoginRequired).replaceAll("%s", share));
+		info.setVisibility(View.VISIBLE);
+		final EditText inputL = dialogView.findViewById(R.id.login);
+		final EditText inputP = dialogView.findViewById(R.id.password);
+		inputL.setText("");
+		inputP.setText("");
+		final AlertDialog.Builder d = new AlertDialog.Builder(c)
+				.setPositiveButton(c.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog1, int which) {
+						final String login = inputL.getText().toString();
+						final String password = inputP.getText().toString();
+						dialog1.dismiss();
+						runnable.run(login, password);
+					}
+				}).setNegativeButton(c.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog1, int which) {
+						dialog1.dismiss();
+					}
+				});
+		d.setView(dialogView);
+		d.show();
 	}
 	
 }

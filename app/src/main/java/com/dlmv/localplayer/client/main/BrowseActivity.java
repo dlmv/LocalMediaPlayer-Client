@@ -30,11 +30,13 @@ import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.*;
 
+import static com.dlmv.localplayer.client.util.ApplicationUtil.showLoginDialog;
+
 public class BrowseActivity extends Activity implements AdapterView.OnItemClickListener {
 
-	private static class Response {
-		private boolean myValid;
-		private String myCause;
+	static class Response {
+		boolean myValid;
+		String myCause;
 		private Location myLocation;
 		private ArrayList<AbsFile> myContent;
 	}
@@ -46,7 +48,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 
 	private Mode myMode;
 
-	private static class Parser {
+	static class Parser {
 		Response parse(InputStream s) throws ParserConfigurationException, SAXException, IOException {
 			Response res = new Response();
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -83,8 +85,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	private Location myLocation;
 	private Location myLocationToOpen;
 	private Location myTempLocation;
-
-	private String myPathToTest;
 
 	private boolean iamDying = false;
 	public void prepareToDie() {
@@ -147,12 +147,14 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		open(new Location(myLocation.Path, request));
 	}
 
-	private NetworkRequest getRequest(String uri) {
+	private NetworkRequest getRequest(String uri, final boolean init) {
 		return new NetworkRequest(ApplicationUtil.Data.serverUri + uri) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
-					init(new Parser().parse(inputStream));
+					if (init) {
+						init(new Parser().parse(inputStream));
+					}
 				} catch (Exception e) {
 					throw new NetworkException(e);
 				}
@@ -160,12 +162,17 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		};
 	}
 
-	private NetworkRequest geTestRequest(String uri, final Runnable doAfter) {
-		return new NetworkRequest(ApplicationUtil.Data.serverUri + uri) {
+    private NetworkRequest getRequest(String uri)  {
+        return  getRequest(uri, true);
+    }
+
+
+	private NetworkRequest geTestRequest(final String path, final Runnable doAfter) {
+		return new NetworkRequest(ApplicationUtil.Data.serverUri +"test") {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
-					initTest(new Parser().parse(inputStream), doAfter);
+					initTest(new Parser().parse(inputStream), path, doAfter);
 				} catch (Exception e) {
 					throw new NetworkException(e);
 				}
@@ -233,15 +240,13 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	}
 
 	private void test(String path, Runnable doAfter) {
-		myPathToTest = path;
-		final NetworkRequest request = geTestRequest("test", doAfter);
+		final NetworkRequest request = geTestRequest(path, doAfter);
 		request.addPostParameter("path", path);
 		performRequest(request, false);
 	}
 
 	private void test(String path, Runnable doAfter, String login, String password) {
-		myPathToTest = path;
-		final NetworkRequest request = geTestRequest("test", doAfter);
+		final NetworkRequest request = geTestRequest(path, doAfter);
 		request.addPostParameter("path", path);
 		request.addPostParameter("login", login);
 		request.addPostParameter("password", password);
@@ -287,7 +292,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	private ArrayList<AbsFile> myFullContent = new ArrayList<>();
 	private DirAdapter myAdapter;
 
-	void initTest(final Response res, final Runnable doAfter) {
+	void initTest(final Response res, final String path, final Runnable doAfter) {
 		if (iamDying) {
 			return;
 		}
@@ -296,10 +301,10 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
 				runOnUiThread(new Runnable() {
 					public void run() {
-						showLoginDialog(share, new LoginRunnable() {
+						showLoginDialog(BrowseActivity.this, share, new ApplicationUtil.LoginRunnable() {
 							@Override
 							public  void  run(String login, String password) {
-								test(myPathToTest, doAfter, login, password);
+								test(path, doAfter, login, password);
 							}
 						});
 					}
@@ -329,7 +334,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
 				runOnUiThread(new Runnable() {
 					public void run() {
-						showLoginDialog(share, new LoginRunnable() {
+						showLoginDialog(BrowseActivity.this, share, new ApplicationUtil.LoginRunnable() {
 							@Override
 							public  void  run(String login, String password) {
 								open(myLocationToOpen, login, password);
@@ -493,7 +498,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest("enqueue");
+					NetworkRequest request = getRequest("enqueue", false);
 					request.addPostParameter("path", f.getPath());
 					performRequest(request, true);
 				}
@@ -503,7 +508,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest("enqueueandplay");
+					NetworkRequest request = getRequest("enqueueandplay", false);
 					request.addPostParameter("path", f.getPath());
 					performRequest(request, true);
 					setResult(RESULT_FIRST_USER);
@@ -513,9 +518,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			});
 		}
 		if (item.getItemId() == VIEW_OPTION) {
-			NetworkRequest request = getRequest("image");
-			request.addPostParameter("path", f.getPath());
-			performRequest(request, true);
+			view(f.getPath());
 		}
 		if (item.getItemId() == OPEN_FOLDER_OPTION) {
 			open(AbsFile.parent(f.getPath()));
@@ -531,40 +534,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			});
 		}
 		return true;
-	}
-
-	interface LoginRunnable {
-		void run(String login, String password);
-	}
-	
-	private void showLoginDialog(final String share, final LoginRunnable runnable) {
-		View dialogView = View.inflate(this, R.layout.login_dialog, null);
-		((TextView) dialogView.findViewById(R.id.loginText)).setText(getResources().getString(R.string.login));
-		((TextView) dialogView.findViewById(R.id.passwordText)).setText(getResources().getString(R.string.password));
-		TextView info = dialogView.findViewById(R.id.infoText);
-		info.setText(getResources().getString(R.string.shareLoginRequired).replaceAll("%s", share));
-		info.setVisibility(View.VISIBLE);
-		final EditText inputL = dialogView.findViewById(R.id.login);
-		final EditText inputP = dialogView.findViewById(R.id.password);
-		inputL.setText("");
-		inputP.setText("");
-		final AlertDialog.Builder d = new AlertDialog.Builder(this)
-		.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog1, int which) {
-				final String login = inputL.getText().toString();
-				final String password = inputP.getText().toString();
-				dialog1.dismiss();
-				runnable.run(login, password);
-			}
-		}).setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog1, int which) {
-				dialog1.dismiss();
-			}
-		});
-		d.setView(dialogView);
-		d.show();
 	}
 
 	@Override

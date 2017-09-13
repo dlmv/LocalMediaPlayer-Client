@@ -27,6 +27,8 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.*;
 import android.widget.AdapterView.OnItemClickListener;
 
+import static com.dlmv.localplayer.client.util.ApplicationUtil.showLoginDialog;
+
 
 public class MainActivity extends Activity implements OnItemClickListener {
 	
@@ -557,15 +559,79 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		});	
 	}
 
+	private void test(String share, String login, String password) {
+		if (!share.endsWith("/")) {
+			share +=  "/";
+		}
+		final NetworkRequest request = geTestRequest();
+		request.addPostParameter("path", share);
+		request.addPostParameter("login", login);
+		request.addPostParameter("password", password);
+		performRequest(request, false);
+	}
+
+	private NetworkRequest geTestRequest() {
+		return new NetworkRequest(ApplicationUtil.Data.serverUri +"testShare") {
+			@Override
+			public void handleStream(InputStream inputStream) throws NetworkException {
+				try {
+					initTest(new BrowseActivity.Parser().parse(inputStream));
+				} catch (Exception e) {
+					throw new NetworkException(e);
+				}
+			}
+		};
+	}
+
+	void initTest(final BrowseActivity.Response res) {
+		if (!res.myValid) {
+			if (res.myCause.startsWith("loginNeeded:")) {
+				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
+							@Override
+							public  void  run(String login, String password) {
+								test(share, login, password);
+							}
+						});
+					}
+				});
+				return;
+			} else {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						Toast.makeText(MainActivity.this, res.myCause, Toast.LENGTH_SHORT).show();
+					}
+				});
+				return;
+			}
+		}
+	}
+
 	void init(final Response r) {
 		getStatus(true);
 		if (!r.myValid) {
-			runOnUiThread(new Runnable() {
-				public void run() {
-					Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
-					setProgressBarVisibility(false);
-				}
-			});	
+			if (r.myCause.startsWith("loginNeeded:")) {
+				final String share =r.myCause.substring("loginNeeded:".length() + 1).trim();
+				runOnUiThread(new Runnable() {
+					public void run() {
+						showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
+							@Override
+							public  void  run(String login, String password) {
+								test(share, login, password);
+							}
+						});
+					}
+				});
+			} else {
+				runOnUiThread(new Runnable() {
+					public void run() {
+						Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
+						setProgressBarVisibility(false);
+					}
+				});
+			}
 		}
 		myStatus = r.myStatus;
 		setPosition(myStatus.myCurrentPosition, true);
