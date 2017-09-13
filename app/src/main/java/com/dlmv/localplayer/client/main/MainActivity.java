@@ -597,14 +597,12 @@ public class MainActivity extends Activity implements OnItemClickListener {
 						});
 					}
 				});
-				return;
 			} else {
 				runOnUiThread(new Runnable() {
 					public void run() {
 						Toast.makeText(MainActivity.this, res.myCause, Toast.LENGTH_SHORT).show();
 					}
 				});
-				return;
 			}
 		}
 	}

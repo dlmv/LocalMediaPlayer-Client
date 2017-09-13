@@ -309,7 +309,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 						});
 					}
 				});
-				return;
 			} else {
 				runOnUiThread(new Runnable() {
 					public void run() {
@@ -317,7 +316,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 						setMyProgressBarVisibility(false);
 					}
 				});
-				return;
 			}
 		} else {
 			runOnUiThread(doAfter);
