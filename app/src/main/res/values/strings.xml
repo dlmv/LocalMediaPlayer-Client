@@ -3,6 +3,7 @@
 
     <string name="app_name">LocalPlayer</string>
     <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
     <string name="menu_reload">Reload</string>
     <string name="menu_open">Open</string>
     <string name="menu_settings">Settings</string>
@@ -60,6 +61,7 @@
     <string name="password">Password:</string>
     <string name="menu_logins">Saved Logins</string>
     <string name="shareLoginRequired">Login required for: \n%s</string>
+    <string name="disconnected">Disconnected</string>
 
 
 </resources>

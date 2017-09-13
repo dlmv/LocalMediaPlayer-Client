@@ -7,6 +7,7 @@ import com.dlmv.localmediaplayer.client.R;
 import com.dlmv.localplayer.client.db.ServersDB.ServerBookmark;
 import com.dlmv.localplayer.client.db.ServerActivity;
 import com.dlmv.localplayer.client.network.*;
+import com.dlmv.localplayer.client.util.ApplicationUtil;
 import com.dlmv.localplayer.client.util.RootApplication;
 
 import android.os.Bundle;
@@ -34,6 +35,25 @@ public class ConnectActivity extends Activity {
 		myServer = findViewById(R.id.server);
 		myServer.setText("http://");
 		myPort = findViewById(R.id.port);
+		if (ApplicationUtil.Data.serverUri != null) {
+			int index = ApplicationUtil.Data.serverUri.lastIndexOf(":");
+			String ip = ApplicationUtil.Data.serverUri.substring(0, index);
+			String port = ApplicationUtil.Data.serverUri.substring(index + 1, ApplicationUtil.Data.serverUri.length() - 1);
+			myServer.setText(ip);
+			myPort.setText(port);
+			Button disconnect = findViewById(R.id.disconnect);
+			disconnect.setVisibility(View.VISIBLE);
+			disconnect.setText(getResources().getString(R.string.menu_disconnect));
+			disconnect.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					Intent data = new Intent();
+					data.putExtra("URI", (String)null);
+					setResult(RESULT_OK, data);
+					finish();
+				}
+			});
+		}
 		Button connect = findViewById(R.id.connect);
 		connect.setOnClickListener(new View.OnClickListener() {
 			@Override

@@ -258,6 +258,11 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		ApplicationUtil.Data.cache.clear();
 		ApplicationUtil.Data.lastLocalLocation = new ApplicationUtil.Location("/", "");
 		ApplicationUtil.Data.lastSmbLocation = new ApplicationUtil.Location("smb://", "");
+		Response r = new Response();
+		r.myStatus = new PlayerStatus();
+		r.myValid = uri != null;
+		r.myCause = uri != null ? "" : getResources().getString(R.string.disconnected);
+		init(r, false);
 		getStatus(false);
 		SharedPreferences settings = getSharedPreferences(ApplicationUtil.PREFS_NAME, 0);
 		SharedPreferences.Editor editor = settings.edit();
@@ -506,7 +511,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 						myLazyStatusInProgress = false;
 					}
 					if (doInit) {
-						init(new Parser().parse(inputStream));
+						if (ApplicationUtil.Data.serverUri != null) {
+							init(new Parser().parse(inputStream));
+						}
 					}
 				} catch (Exception e) {
 					throw new NetworkException(e);
@@ -608,6 +615,11 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	void init(final Response r) {
+		init(r, true);
+	}
+
+
+	void init(final Response r, final boolean removeProgress) {
 		getStatus(true);
 		if (!r.myValid) {
 			if (r.myCause.startsWith("loginNeeded:")) {
@@ -626,7 +638,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				runOnUiThread(new Runnable() {
 					public void run() {
 						Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
-						setProgressBarVisibility(false);
+						if (removeProgress) {
+							setProgressBarVisibility(false);
+						}
 					}
 				});
 			}
@@ -652,7 +666,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				setPlayBar();
 				setVolumeBar();
 				setMpVolumeBar();
-				setProgressBarVisibility(false);
+				if (removeProgress) {
+					setProgressBarVisibility(false);
+				}
 				getContentView().postInvalidate();
 			}
 		});
