@@ -318,8 +318,12 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				});
 			}
 		} else {
-			setMyProgressBarVisibility(false);
-			runOnUiThread(doAfter);
+			runOnUiThread(new Runnable() {
+				public void run() {
+					setMyProgressBarVisibility(false);
+					doAfter.run();
+				}
+			});
 		}
 	}
 
