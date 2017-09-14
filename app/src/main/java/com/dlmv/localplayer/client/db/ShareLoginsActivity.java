@@ -20,20 +20,34 @@ import com.dlmv.localplayer.client.network.*;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 
-public class ShareLoginsActivity extends DBListActivity<String> {
+class ShareDescription {
+	final String Share;
+	final String Login;
+
+	ShareDescription(String share, String login) {
+		Share = share;
+		Login = login;
+	}
+}
+
+public class ShareLoginsActivity extends DBListActivity<ShareDescription> {
 	
 	public static final String LOGINS = "logins";
-	
+	public static final String SHARES = "shares";
+
+
 	private static class Response {
 		private boolean myValid;
 		private String myCause;
-		private ArrayList<String> myContent;
+		private ArrayList<String> myShares;
+		private ArrayList<String> myLogins;
 	}
-	
+
 	static public void callMe(final Response res, final Activity caller) {
 		if (!res.myValid) {
 			caller.runOnUiThread(new Runnable() {
@@ -44,7 +58,9 @@ public class ShareLoginsActivity extends DBListActivity<String> {
 			return;
 		}
 		Intent i = new Intent(caller, ShareLoginsActivity.class);
-		i.putStringArrayListExtra(LOGINS , res.myContent);
+		i.putStringArrayListExtra(LOGINS , res.myLogins);
+		i.putStringArrayListExtra(SHARES , res.myShares);
+
 		caller.startActivity(i);
 	}
 	
@@ -65,11 +81,14 @@ public class ShareLoginsActivity extends DBListActivity<String> {
 				if (list.getLength() == 1) {
 					Element dir = (Element)list.item(0);
 					NodeList list1 = dir.getElementsByTagName("share");
-					res.myContent = new ArrayList<>();
+					res.myLogins = new ArrayList<>();
+					res.myShares = new ArrayList<>();
 					for (int i = 0; i < list1.getLength(); ++i) {
 						Element e = (Element)list1.item(i);
 						String share = URLDecoder.decode(e.getAttribute("name"), "UTF-8");
-						res.myContent.add(share);
+						String login = URLDecoder.decode(e.getAttribute("login"), "UTF-8");
+						res.myShares.add(share);
+						res.myLogins.add(login);
 					}
 				}
 			}
@@ -78,36 +97,41 @@ public class ShareLoginsActivity extends DBListActivity<String> {
 	}
 	
 	@Override
-	protected View setAdapterView(String b, View convertView, ViewGroup parent, LayoutInflater inflater) {
+	protected View setAdapterView(ShareDescription b, View convertView, ViewGroup parent, LayoutInflater inflater) {
 		if (convertView == null) {
 			convertView = inflater.inflate(android.R.layout.simple_expandable_list_item_2, parent, false);
 		}
 		TextView title = convertView.findViewById(android.R.id.text1);
 		TextView subtitle = convertView.findViewById(android.R.id.text2);
-		int divider = b.lastIndexOf("/");
-		title.setText(b.substring(divider+1));
-		subtitle.setText(b);
+		title.setText(b.Login);
+		subtitle.setText(b.Share);
 		return convertView;
 	}
 
 	@Override
-	protected List<String> getList() {
-		return getIntent().getStringArrayListExtra(LOGINS);
+	protected List<ShareDescription> getList() {
+		ArrayList<ShareDescription> list = new ArrayList<>();
+		for (int i = 0; i < getIntent().getStringArrayListExtra(SHARES).size(); ++i) {
+			String share = getIntent().getStringArrayListExtra(SHARES).get(i);
+			String login = getIntent().getStringArrayListExtra(LOGINS).get(i);
+			list.add(new ShareDescription(share, login));
+		}
+		return  list;
 	}
 
 	@Override
-	protected void fillResultIntent(String s, Intent data) {
+	protected void fillResultIntent(ShareDescription s, Intent data) {
 	}
 
 	@Override
-	protected void delete(String b) {
+	protected void delete(ShareDescription b) {
 		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + "forgetlogin") {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				//TODO: show something
 			}
 		};
-		request.addPostParameter("share", b);
+		request.addPostParameter("share", b.Share);
 		new Thread() {
 			@Override
 			public void run() {
