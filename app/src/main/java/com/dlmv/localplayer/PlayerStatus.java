@@ -22,14 +22,14 @@ public class PlayerStatus {
 		CYCLIC,
 	}
 	public PlaylistType myType = PlaylistType.LINEAR;
-	
+
 	public PlaylistType getNextType() {
 		if (myType.equals(PlaylistType.LINEAR)) {
 			return PlaylistType.CYCLIC;
 		}
 		return PlaylistType.LINEAR;
 	}
-	
+
 	public static class PlaylistItem {
 		public final String Path;
 		public PlaylistItem(String uri) {
@@ -44,11 +44,12 @@ public class PlayerStatus {
 			return name.substring(divider + 1);
 		}
 	}
-	
+
 	public static final int STOP = 0;
 	public static final int PAUSE = 1;
 
 	public ArrayList<PlaylistItem> myPlaylist = new ArrayList<>();
+	public PlaylistItem myBackItem;
 	public int myCurrentTrackNo;
 	public int myCurrentDuration;
 	public int myCurrentPosition;
@@ -57,13 +58,13 @@ public class PlayerStatus {
 	public int myMaxVolume;
 	public int myStopAfter = -1;
 	public int myStopAfterType = STOP;
-	
+
 	public int myMpVolume = 100;
 	public int myMpMaxVolume = 100;
 	public int myBackMpVolume = 100;
 	public int myBackMpMaxVolume = 100;
 
-	private final String ourStatusTemplate = "<status state=\"%STATE%\" playing=\"%NUM%\" stopAfter=\"%STOPNUM%\" stopType=\"%STOPTYPE%\" duration=\"%DURATION%\" radio=\"%RADIO%\" position=\"%POSITION%\" buffered=\"%BUFFER%\" volume=\"%VOLUME%\" maxvolume=\"%MAXVOLUME%\" mpvolume=\"%MPVOLUME%\" mpmaxvolume=\"%MPMAXVOLUME%\" backmpvolume=\"%BACKMPVOLUME%\" backmpmaxvolume=\"%BACKMPMAXVOLUME%\" playtype=\"%TYPE%\">\n%PLAYLIST%</status>\n";
+	private final String ourStatusTemplate = "<status state=\"%STATE%\" playing=\"%NUM%\" stopAfter=\"%STOPNUM%\" stopType=\"%STOPTYPE%\" duration=\"%DURATION%\" radio=\"%RADIO%\" position=\"%POSITION%\" buffered=\"%BUFFER%\" volume=\"%VOLUME%\" maxvolume=\"%MAXVOLUME%\" mpvolume=\"%MPVOLUME%\" mpmaxvolume=\"%MPMAXVOLUME%\" backmpvolume=\"%BACKMPVOLUME%\" backmpmaxvolume=\"%BACKMPMAXVOLUME%\" backpath=\"%BACKPATH%\" playtype=\"%TYPE%\">\n%PLAYLIST%</status>\n";
 	private final String ourItemTemplate = "<item path=\"%PATH%\"/>\n";
 
 	public String getXml() throws UnsupportedEncodingException  {
@@ -88,10 +89,11 @@ public class PlayerStatus {
 				.replace("%MPMAXVOLUME%", Integer.toString(myMpMaxVolume))
 				.replace("%BACKMPVOLUME%", Integer.toString(myBackMpVolume))
 				.replace("%BACKMPMAXVOLUME%", Integer.toString(myBackMpMaxVolume))
+				.replace("%BACKPATH%", myBackItem.Path != null ? myBackItem.Path : "")
 				.replace("%TYPE%", myType.name())
 				.replace("%PLAYLIST%", pls);
 	}
-	
+
 	public static PlayerStatus fromDom(Element e) throws UnsupportedEncodingException {
 		PlayerStatus status = new PlayerStatus();
 		status.myState = State.valueOf(e.getAttribute("state"));
@@ -104,6 +106,7 @@ public class PlayerStatus {
 		status.myMpMaxVolume = Integer.parseInt(e.getAttribute("mpmaxvolume"));
 		status.myBackMpVolume = Integer.parseInt(e.getAttribute("backmpvolume"));
 		status.myBackMpMaxVolume = Integer.parseInt(e.getAttribute("backmpmaxvolume"));
+		status.myBackItem = e.getAttribute("backpath").equals("") ? null : new PlaylistItem(e.getAttribute("backmpmaxvolume"));
 		status.myCurrentTrackNo = Integer.parseInt(e.getAttribute("playing"));
 		status.myStopAfter = Integer.parseInt(e.getAttribute("stopAfter"));
 		status.myStopAfterType = Integer.parseInt(e.getAttribute("stopType"));
@@ -117,6 +120,6 @@ public class PlayerStatus {
 		}
 		return status;
 	}
-	
-	
+
+
 }

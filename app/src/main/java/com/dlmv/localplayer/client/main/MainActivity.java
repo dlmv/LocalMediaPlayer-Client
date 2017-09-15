@@ -353,7 +353,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		menu.findItem(R.id.menu_reload).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_open).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_volume).setVisible(ApplicationUtil.Data.serverUri != null);
-		menu.findItem(R.id.menu_stop_background).setVisible(ApplicationUtil.Data.serverUri != null);
+		menu.findItem(R.id.menu_stop_background).setVisible(ApplicationUtil.Data.serverUri != null && myStatus.myBackItem != null);
 		return true;
 	}
 
@@ -647,6 +647,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		setPosition(myStatus.myCurrentPosition, true);
 		runOnUiThread(new Runnable() {
 			public void run() {
+				invalidateOptionsMenu();
 				myPlayList.clear();
 					myPlayList.addAll(myStatus.myPlaylist);
 				myAdapter.notifyDataSetChanged();
