@@ -262,28 +262,26 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		r.myStatus = new PlayerStatus();
 		r.myValid = uri != null;
 		r.myCause = uri != null ? "" : getResources().getString(R.string.disconnected);
-		init(r, false);
+		init(r);
 		getStatus(false);
 		SharedPreferences settings = getSharedPreferences(ApplicationUtil.PREFS_NAME, 0);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putString(ApplicationUtil.LAST_URI, uri);
 		editor.apply();
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				invalidateOptionsMenu();
-				ImageButton b = findViewById(R.id.local_button);
-				b.setEnabled(ApplicationUtil.Data.serverUri != null);
-				ImageButton b1 = findViewById(R.id.shared_button);
-				b1.setEnabled(ApplicationUtil.Data.serverUri != null);
-			}
-		});
+
+		invalidateOptionsMenu();
+		ImageButton b = findViewById(R.id.local_button);
+		b.setEnabled(ApplicationUtil.Data.serverUri != null);
+		ImageButton b1 = findViewById(R.id.shared_button);
+		b1.setEnabled(ApplicationUtil.Data.serverUri != null);
+
 	}
 
 	private void checkOnStart() {
 		SharedPreferences settings = getSharedPreferences(ApplicationUtil.PREFS_NAME, 0);
 		final String uri = settings.getString(ApplicationUtil.LAST_URI, null);
 		if (uri == null) {
+			setProgressBarVisibility(false);
 			return;
 		}
 		final NetworkRequest request = new NetworkRequest(uri + "status") {
@@ -303,7 +301,13 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			public void run() {
 				try {
 					NetworkManager.Instance().perform(request);
-					setUri(uri);
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							setUri(uri);
+						}
+					});
+
 				} catch (NetworkException e)  {
 					if (e.isUnauthorized()) {
 						//TODO: ask password
@@ -614,12 +618,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 	}
 
+
 	void init(final Response r) {
-		init(r, true);
-	}
-
-
-	void init(final Response r, final boolean removeProgress) {
 		getStatus(true);
 		if (!r.myValid) {
 			if (r.myCause.startsWith("loginNeeded:")) {
@@ -638,16 +638,13 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				runOnUiThread(new Runnable() {
 					public void run() {
 						Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
-						if (removeProgress) {
-							setProgressBarVisibility(false);
-						}
+						setProgressBarVisibility(false);
 					}
 				});
 			}
 		}
 		myStatus = r.myStatus;
 		setPosition(myStatus.myCurrentPosition, true);
-		myLastUpdateTime = new Date();
 		runOnUiThread(new Runnable() {
 			public void run() {
 				myPlayList.clear();
@@ -666,9 +663,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				setPlayBar();
 				setVolumeBar();
 				setMpVolumeBar();
-				if (removeProgress) {
-					setProgressBarVisibility(false);
-				}
+				setProgressBarVisibility(false);
 				getContentView().postInvalidate();
 			}
 		});
