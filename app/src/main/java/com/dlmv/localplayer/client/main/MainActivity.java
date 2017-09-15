@@ -708,7 +708,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (!myMpVolumeBarIsAdjusting){
 			SeekBar s = myVolumeDialog.findViewById(R.id.volumebar);
 			if (myStatus.myMpMaxVolume > 0 && myStatus.myMpVolume >= 0 && myStatus.myMpVolume <= myStatus.myMpMaxVolume) {
-				s.setMax(0);
 				s.setMax(myStatus.myMpMaxVolume);
 				s.setProgress(myStatus.myMpVolume);
 			} else {
@@ -719,7 +718,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (!myBackMpVolumeBarIsAdjusting){
 			SeekBar s = myVolumeDialog.findViewById(R.id.backvolumebar);
 			if (myStatus.myBackMpMaxVolume > 0 && myStatus.myBackMpVolume >= 0 && myStatus.myBackMpVolume <= myStatus.myBackMpMaxVolume) {
-				s.setMax(0);
 				s.setMax(myStatus.myBackMpMaxVolume);
 				s.setProgress(myStatus.myBackMpVolume);
 			} else {
