@@ -683,7 +683,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			return;
 		}
 		if (myStatus.myCurrentDuration > 0 && myStatus.myCurrentPosition >= 0 && myStatus.myCurrentPosition <= myStatus.myCurrentDuration) {
-			myPlayBar.setMax(0);
 			myPlayBar.setMax(myStatus.myCurrentDuration / 1000);
 			myPlayBar.setProgress(myStatus.myCurrentPosition / 1000);
 		} else {
@@ -699,7 +698,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			return;
 		}
 		if (myStatus.myMaxVolume > 0 && myStatus.myVolume >= 0 && myStatus.myVolume <= myStatus.myMaxVolume) {
-			myVolumeBar.setMax(0);
 			myVolumeBar.setMax(myStatus.myMaxVolume);
 			myVolumeBar.setProgress(myStatus.myVolume);
 		} else {
