@@ -211,10 +211,10 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		stopButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) {
-					NetworkRequest request = getRequest("stop");
-					performRequest(request, false);
-				}
+				//if (myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) {
+				NetworkRequest request = getRequest("stop");
+				performRequest(request, false);
+				//}
 			}
 		});
 		nextButton.setOnClickListener(new View.OnClickListener() {
