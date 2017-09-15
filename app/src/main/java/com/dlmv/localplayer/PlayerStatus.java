@@ -89,7 +89,7 @@ public class PlayerStatus {
 				.replace("%MPMAXVOLUME%", Integer.toString(myMpMaxVolume))
 				.replace("%BACKMPVOLUME%", Integer.toString(myBackMpVolume))
 				.replace("%BACKMPMAXVOLUME%", Integer.toString(myBackMpMaxVolume))
-				.replace("%BACKPATH%", myBackItem.Path != null ? myBackItem.Path : "")
+				.replace("%BACKPATH%", myBackItem != null ? myBackItem.Path : "")
 				.replace("%TYPE%", myType.name())
 				.replace("%PLAYLIST%", pls);
 	}
@@ -120,6 +120,4 @@ public class PlayerStatus {
 		}
 		return status;
 	}
-
-
 }
