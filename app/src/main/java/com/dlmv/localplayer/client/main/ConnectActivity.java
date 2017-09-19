@@ -9,6 +9,7 @@ import com.dlmv.localplayer.client.db.ServerActivity;
 import com.dlmv.localplayer.client.network.*;
 import com.dlmv.localplayer.client.util.ApplicationUtil;
 import com.dlmv.localplayer.client.util.RootApplication;
+import com.dlmv.localplayer.client.util.ServerPath;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -84,7 +85,7 @@ public class ConnectActivity extends Activity {
 	synchronized void checkUri(final String server, final int port) {
 		final ProgressDialog dialog = ProgressDialog.show(this, getResources().getString(R.string.checking), "");
 		final String uri = myServer.getText().toString() + ":" + myPort.getText() + "/";
-		final NetworkRequest request = new NetworkRequest(uri + "login") {
+		final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 			}
@@ -112,12 +113,12 @@ public class ConnectActivity extends Activity {
 										new Thread() {
 											@Override
 											public void run() {
-												final NetworkRequest request = new NetworkRequest(uri + "login") {
+												final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
 													@Override
 													public void handleStream(InputStream inputStream) throws NetworkException {
 													}
 												};
-												request.addPostParameter("password", pass);
+												request.addPostParameter(ServerPath.PASSWORD, pass);
 												try {
 													NetworkManager.Instance().perform(request);
 													onDialogResult(true, dialog, server, port);

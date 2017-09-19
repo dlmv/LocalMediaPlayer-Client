@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 
 import com.dlmv.localplayer.client.util.ApplicationUtil;
 import com.dlmv.localplayer.client.network.*;
+import com.dlmv.localplayer.client.util.ServerPath;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -74,10 +75,10 @@ public class ShareLoginsActivity extends DBListActivity<ShareDescription> {
 			if (!"response".equals(root.getTagName())) {
 				Log.e("testmpclient", "wrong tag!!!");
 			}
-			res.myValid = root.getAttribute("valid").equals("true");
+			res.myValid =  Boolean.parseBoolean(root.getAttribute("valid"));
 			res.myCause = root.getAttribute("reason");
 			if (res.myValid) {
-				NodeList list = root.getElementsByTagName("loginlist");
+				NodeList list = root.getElementsByTagName(ServerPath.LOGIN_LIST);
 				if (list.getLength() == 1) {
 					Element dir = (Element)list.item(0);
 					NodeList list1 = dir.getElementsByTagName("share");
@@ -125,13 +126,13 @@ public class ShareLoginsActivity extends DBListActivity<ShareDescription> {
 
 	@Override
 	protected void delete(ShareDescription b) {
-		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + "forgetlogin") {
+		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.FORGET_LOGIN) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				//TODO: show something
 			}
 		};
-		request.addPostParameter("share", b.Share);
+		request.addPostParameter(ServerPath.PATH, b.Share);
 		new Thread() {
 			@Override
 			public void run() {

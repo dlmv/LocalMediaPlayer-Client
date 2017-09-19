@@ -7,6 +7,7 @@ import java.net.URL;
 
 import com.dlmv.localmediaplayer.client.R;
 import com.dlmv.localplayer.client.util.ApplicationUtil;
+import com.dlmv.localplayer.client.util.ServerPath;
 
 
 import android.graphics.Bitmap;
@@ -52,7 +53,7 @@ class AsyncUploadImage extends AsyncTask<Object, Object, Object> {
 	protected Object doInBackground(Object... params) {
 		URL url;
 		try {
-			String sb = ApplicationUtil.Data.serverUri + "image" +
+			String sb = ApplicationUtil.Data.serverUri + ServerPath.IMAGE +
 					"?" +
 					"path=" +
 					params[0];

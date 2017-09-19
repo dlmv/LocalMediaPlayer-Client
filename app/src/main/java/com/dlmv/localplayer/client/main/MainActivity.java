@@ -16,6 +16,7 @@ import com.dlmv.localplayer.client.network.*;
 import com.dlmv.localplayer.client.db.*;
 import com.dlmv.localplayer.client.util.AbsFile;
 import com.dlmv.localplayer.client.util.ApplicationUtil;
+import com.dlmv.localplayer.client.util.ServerPath;
 
 import android.os.Bundle;
 import android.app.*;
@@ -71,14 +72,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_UP && event.getAction() == KeyEvent.ACTION_DOWN) {
 			if (myStatus.myVolume < myStatus.myMaxVolume) {
-				NetworkRequest request = getRequest("volumeup");
+				NetworkRequest request = getRequest(ServerPath.VOLUME_UP);
 				performRequest(request, false);
 			}
 			return true;
 		}
 		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN && event.getAction() == KeyEvent.ACTION_DOWN ) {
 			if (myStatus.myVolume > 0) {
-				NetworkRequest request = getRequest("volumedown");
+				NetworkRequest request = getRequest(ServerPath.VOLUME_DOWN);
 				performRequest(request, false);
 			}
 			return true;
@@ -132,8 +133,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				myVolumeBarIsAdjusting = false;
 				if (myValueToSet != -1) {
-					final NetworkRequest request = getRequest("setvolume");
-					request.addPostParameter("volume", Integer.toString(myValueToSet));
+					final NetworkRequest request = getRequest(ServerPath.SET_VOLUME);
+					request.addPostParameter(ServerPath.VOLUME, Integer.toString(myValueToSet));
 					performRequest(request, false);
 				}
 			}
@@ -159,9 +160,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				myPlayBarIsAdjusting = false;
 				if (myValueToSet != -1) {
-					final NetworkRequest request = getRequest("seekto");
-					request.addPostParameter("num", Integer.toString(myTrackNum));
-					request.addPostParameter("position", Integer.toString(myValueToSet * 1000));
+					final NetworkRequest request = getRequest(ServerPath.SEEK_TO);
+					request.addPostParameter(ServerPath.NUM, Integer.toString(myTrackNum));
+					request.addPostParameter(ServerPath.POSITION, Integer.toString(myValueToSet * 1000));
 					performRequest(request, false);
 				}
 			}
@@ -181,10 +182,10 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onClick(View v) {
 				if (myStatus.myState.equals(PlayerStatus.State.STOPPED) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) {
-					NetworkRequest request = getRequest("play");
+					NetworkRequest request = getRequest(ServerPath.PLAY);
 					performRequest(request, false);
 				} else if (myStatus.myState.equals(PlayerStatus.State.PLAYING)) {
-					NetworkRequest request = getRequest("pause");
+					NetworkRequest request = getRequest(ServerPath.PAUSE);
 					performRequest(request, false);
 				}
 			}
@@ -193,7 +194,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onClick(View v) {
 				//if (myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) {
-				NetworkRequest request = getRequest("stop");
+				NetworkRequest request = getRequest(ServerPath.STOP);
 				performRequest(request, false);
 				//}
 			}
@@ -202,8 +203,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onClick(View v) {
 				if ((myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo + 1) < myPlayList.size()) {
-					NetworkRequest request = getRequest("playnum");
-					request.addPostParameter("num", Integer.toString(myStatus.myCurrentTrackNo + 1));
+					NetworkRequest request = getRequest(ServerPath.PLAY_NUM);
+					request.addPostParameter(ServerPath.NUM, Integer.toString(myStatus.myCurrentTrackNo + 1));
 					performRequest(request, false);
 				}
 			}
@@ -212,8 +213,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onClick(View v) {
 				if ((myStatus.myState.equals(PlayerStatus.State.PLAYING) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) && (myStatus.myCurrentTrackNo - 1) >= 0) {
-					NetworkRequest request = getRequest("playnum");
-					request.addPostParameter("num", Integer.toString(myStatus.myCurrentTrackNo - 1));
+					NetworkRequest request = getRequest(ServerPath.PLAY_NUM);
+					request.addPostParameter(ServerPath.NUM, Integer.toString(myStatus.myCurrentTrackNo - 1));
 					performRequest(request, false);
 				}
 			}
@@ -221,8 +222,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		myPlaytypeButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				NetworkRequest request = getRequest("setplaytype");
-				request.addPostParameter("type", myStatus.getNextType().name());
+				NetworkRequest request = getRequest(ServerPath.SET_PLAYTYPE);
+				request.addPostParameter(ServerPath.TYPE, myStatus.getNextType().name());
 				performRequest(request, false);
 			}
 		});
@@ -258,7 +259,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			setProgressBarVisibility(false);
 			return;
 		}
-		final NetworkRequest request = new NetworkRequest(uri + "status") {
+		final NetworkRequest request = new NetworkRequest(uri + ServerPath.STATUS) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
@@ -368,7 +369,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	void showLogins() {
-		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + "loginlist") {
+		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.LOGIN_LIST) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
@@ -402,8 +403,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				myMpVolumeBarIsAdjusting = false;
 				if (myValueToSet != -1) {
-					final NetworkRequest request = getRequest("setmpvolume");
-					request.addPostParameter("volume", Integer.toString(myValueToSet));
+					final NetworkRequest request = getRequest(ServerPath.SET_MP_VOLUME);
+					request.addPostParameter(ServerPath.VOLUME, Integer.toString(myValueToSet));
 					performRequest(request, false);
 				}
 			}
@@ -426,8 +427,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				myBackMpVolumeBarIsAdjusting = false;
 				if (myValueToSet != -1) {
-					final NetworkRequest request = getRequest("setbackmpvolume");
-					request.addPostParameter("volume", Integer.toString(myValueToSet));
+					final NetworkRequest request = getRequest(ServerPath.SET_BACKMP_VOLUME);
+					request.addPostParameter(ServerPath.VOLUME, Integer.toString(myValueToSet));
 					performRequest(request, false);
 				}
 			}
@@ -438,10 +439,10 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			@Override
 			public void onClick(View view) {
 				if (myStatus.myBackState.equals(PlayerStatus.State.PAUSED)) {
-					NetworkRequest request = getRequest("resumebackground");
+					NetworkRequest request = getRequest(ServerPath.RESUME_BACKGROUND);
 					performRequest(request, false);
 				} else if (myStatus.myBackState.equals(PlayerStatus.State.PLAYING)) {
-					NetworkRequest request = getRequest("pausebackground");
+					NetworkRequest request = getRequest(ServerPath.PAUSE_BACKGROUND);
 					performRequest(request, false);
 				}
 			}
@@ -450,7 +451,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		stopButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				NetworkRequest request = getRequest("stopbackground");
+				NetworkRequest request = getRequest(ServerPath.STOP_BACKGROUND);
 				performRequest(request, false);
 			}
 		});
@@ -489,7 +490,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			if (!"response".equals(root.getTagName())) {
 				Log.e("testmpclient", "wrong tag!!!");
 			}
-			res.myValid = root.getAttribute("valid").equals("true");
+			res.myValid = Boolean.parseBoolean(root.getAttribute("valid"));
 			res.myCause= root.getAttribute("reason");
 			NodeList list = root.getElementsByTagName("status");
 			if (list.getLength() == 1) {
@@ -554,7 +555,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (lazy && myLazyStatusInProgress) {
 			return;
 		}
-		String uri = lazy ? "lazystatus" : "status";
+		String uri = lazy ? ServerPath.LAZY_STATUS : ServerPath.STATUS;
 		final NetworkRequest request = getRequest(uri, lazy, true);
 		performRequest(request, lazy);
 	}
@@ -573,14 +574,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			share +=  "/";
 		}
 		final NetworkRequest request = geTestRequest();
-		request.addPostParameter("path", share);
-		request.addPostParameter("login", login);
-		request.addPostParameter("password", password);
+		request.addPostParameter(ServerPath.PATH, share);
+		request.addPostParameter(ServerPath.LOGIN, login);
+		request.addPostParameter(ServerPath.PASSWORD, password);
 		performRequest(request, false);
 	}
 
 	private NetworkRequest geTestRequest() {
-		return new NetworkRequest(ApplicationUtil.Data.serverUri +"testShare") {
+		return new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.CHECK_SHARE) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
@@ -781,8 +782,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 	@Override
 	public void onItemClick(AdapterView<?> p, View v, int position, long id) {
-		NetworkRequest request = getRequest("playnum");
-		request.addPostParameter("num", Integer.toString(position));
+		NetworkRequest request = getRequest(ServerPath.PLAY_NUM);
+		request.addPostParameter(ServerPath.NUM, Integer.toString(position));
 		performRequest(request, false);
 	}
 
@@ -815,61 +816,61 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		int position = info.position;
 		PlaylistItem i = myPlayList.get(position);
 		if (item.getItemId() == PLAY_OPTION) {
-			NetworkRequest request = getRequest("playnum");
-			request.addPostParameter("num", Integer.toString(position));
+			NetworkRequest request = getRequest(ServerPath.PLAY_NUM);
+			request.addPostParameter(ServerPath.NUM, Integer.toString(position));
 			performRequest(request, false);
 		}
 		if (item.getItemId() == OPEN_OPTION) {
 			ApplicationUtil.open(this, AbsFile.parent(i.Path));
 		}
 		if (item.getItemId() == REMOVE_OPTION) {
-			NetworkRequest request = getRequest("remove");
-			request.addPostParameter("start", Integer.toString(position));
-			request.addPostParameter("finish", Integer.toString(position));
+			NetworkRequest request = getRequest(ServerPath.REMOVE);
+			request.addPostParameter(ServerPath.START, Integer.toString(position));
+			request.addPostParameter(ServerPath.FINISH, Integer.toString(position));
 			performRequest(request, false);
 			myPlayList.remove(position);
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == REMOVE_BEFORE_OPTION) {
-			NetworkRequest request = getRequest("remove");
-			request.addPostParameter("start", Integer.toString(0));
-			request.addPostParameter("finish", Integer.toString(position - 1));
+			NetworkRequest request = getRequest(ServerPath.REMOVE);
+			request.addPostParameter(ServerPath.START, Integer.toString(0));
+			request.addPostParameter(ServerPath.FINISH, Integer.toString(position - 1));
 			performRequest(request, false);
 			myPlayList.remove(position);
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == REMOVE_AFTER_OPTION) {
-			NetworkRequest request = getRequest("remove");
-			request.addPostParameter("start", Integer.toString(position + 1));
-			request.addPostParameter("finish", Integer.toString(myPlayList.size() - 1));
+			NetworkRequest request = getRequest(ServerPath.REMOVE);
+			request.addPostParameter(ServerPath.START, Integer.toString(position + 1));
+			request.addPostParameter(ServerPath.FINISH, Integer.toString(myPlayList.size() - 1));
 			performRequest(request, false);
 			myPlayList.remove(position);
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == CLEAR_OPTION) {
-			NetworkRequest request = getRequest("clearplaylist");
+			NetworkRequest request = getRequest(ServerPath.CLEAR);
 			performRequest(request, false);
 			myPlayList.clear();
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == STOPAFTER_OPTION) {
-			NetworkRequest request = getRequest("stopafter");
-			request.addPostParameter("num", Integer.toString(position));
-			request.addPostParameter("type", Integer.toString(PlayerStatus.STOP));
+			NetworkRequest request = getRequest(ServerPath.STOP_AFTER);
+			request.addPostParameter(ServerPath.NUM, Integer.toString(position));
+			request.addPostParameter(ServerPath.TYPE, Integer.toString(PlayerStatus.STOP));
 			performRequest(request, false);
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == PAUSEAFTER_OPTION) {
-			NetworkRequest request = getRequest("stopafter");
-			request.addPostParameter("num", Integer.toString(position));
-			request.addPostParameter("type", Integer.toString(PlayerStatus.PAUSE));
+			NetworkRequest request = getRequest(ServerPath.STOP_AFTER);
+			request.addPostParameter(ServerPath.NUM, Integer.toString(position));
+			request.addPostParameter(ServerPath.TYPE, Integer.toString(PlayerStatus.PAUSE));
 			performRequest(request, false);
 			myAdapter.notifyDataSetChanged();
 		}
 		if (item.getItemId() == NOAFTER_OPTION) {
-			NetworkRequest request = getRequest("stopafter");
-			request.addPostParameter("num", Integer.toString(-1));
-			request.addPostParameter("type", Integer.toString(PlayerStatus.STOP));
+			NetworkRequest request = getRequest(ServerPath.STOP_AFTER);
+			request.addPostParameter(ServerPath.NUM, Integer.toString(-1));
+			request.addPostParameter(ServerPath.TYPE, Integer.toString(PlayerStatus.STOP));
 			performRequest(request, false);
 			myAdapter.notifyDataSetChanged();
 		}

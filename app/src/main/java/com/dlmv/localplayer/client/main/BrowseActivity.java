@@ -19,6 +19,7 @@ import com.dlmv.localplayer.client.db.*;
 import com.dlmv.localplayer.client.image.ImageViewActivity;
 import com.dlmv.localplayer.client.network.*;
 import com.dlmv.localplayer.client.util.RootApplication;
+import com.dlmv.localplayer.client.util.ServerPath;
 import com.dlmv.localplayer.client.util.UpFile;
 
 import android.app.*;
@@ -160,8 +161,8 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
     }
 
 
-	private NetworkRequest geTestRequest(final String path, final Runnable doAfter) {
-		return new NetworkRequest(ApplicationUtil.Data.serverUri +"test") {
+	private NetworkRequest getTestRequest(final String path, final Runnable doAfter) {
+		return new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.CHECK) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
 				try {
@@ -217,11 +218,11 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			init(r);
 			return;
 		}
-		String uri = l.Request.equals("") ? "browse" : "search";
+		String uri = l.Request.equals("") ? ServerPath.BROWSE : ServerPath.SEARCH;
 
 		final NetworkRequest request = getRequest(uri);
-		request.addPostParameter("path", l.Path);
-		request.addPostParameter("request", l.Request);
+		request.addPostParameter(ServerPath.PATH, l.Path);
+		request.addPostParameter(ServerPath.REQUEST, l.Request);
 		performRequest(request, false);
 	}
 	
@@ -230,32 +231,32 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			myTempLocation = myLocation;
 		}
 		myLocationToOpen = l;
-		String uri = l.Request.equals("") ? "browse" : "search";
+		String uri = l.Request.equals("") ? ServerPath.BROWSE : ServerPath.SEARCH;
 
 		final NetworkRequest request = getRequest(uri);
-		request.addPostParameter("path", l.Path);
-		request.addPostParameter("login", login);
-		request.addPostParameter("password", password);
-		request.addPostParameter("request", l.Request);
+		request.addPostParameter(ServerPath.PATH, l.Path);
+		request.addPostParameter(ServerPath.REQUEST, l.Request);
+		request.addPostParameter(ServerPath.LOGIN, login);
+		request.addPostParameter(ServerPath.PASSWORD, password);
 		performRequest(request, false);
 	}
 
 	private void test(String path, Runnable doAfter) {
-		final NetworkRequest request = geTestRequest(path, doAfter);
-		request.addPostParameter("path", path);
+		final NetworkRequest request = getTestRequest(path, doAfter);
+		request.addPostParameter(ServerPath.PATH, path);
 		performRequest(request, false);
 	}
 
 	private void test(String path, Runnable doAfter, String login, String password) {
-		final NetworkRequest request = geTestRequest(path, doAfter);
-		request.addPostParameter("path", path);
-		request.addPostParameter("login", login);
-		request.addPostParameter("password", password);
+		final NetworkRequest request = getTestRequest(path, doAfter);
+		request.addPostParameter(ServerPath.PATH, path);
+		request.addPostParameter(ServerPath.LOGIN, login);
+		request.addPostParameter(ServerPath.PASSWORD, password);
 		performRequest(request, false);
 	}
 
 	private void stopSearch() {
-		performRequest(getRequest("stopsearch"), true);
+		performRequest(getRequest(ServerPath.STOP_SEARCH), true);
 	}
 
 	private boolean back() {
@@ -487,8 +488,8 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest("enqueue", false);
-					request.addPostParameter("path", f.getPath());
+					NetworkRequest request = getRequest(ServerPath.ENQUEUE, false);
+					request.addPostParameter(ServerPath.PATH, f.getPath());
 					performRequest(request, true);
 				}
 			});
@@ -497,8 +498,8 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest("enqueueandplay", false);
-					request.addPostParameter("path", f.getPath());
+					NetworkRequest request = getRequest(ServerPath.ENQUEUE_AND_PLAY, false);
+					request.addPostParameter(ServerPath.PATH, f.getPath());
 					performRequest(request, true);
 					setResult(RESULT_FIRST_USER);
 					prepareToDie();
@@ -516,8 +517,8 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest("playbackground");
-					request.addPostParameter("path", f.getPath());
+					NetworkRequest request = getRequest(ServerPath.PLAY_BACKGROUND);
+					request.addPostParameter(ServerPath.PATH, f.getPath());
 					performRequest(request, true);
 				}
 			});
@@ -682,7 +683,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		BookmarksDB db = ((RootApplication)getApplication()).BookmarksDB();
 		final BookmarksDB.Bookmark b = new BookmarksDB.Bookmark(myLocation.Path, -1);
 		ImageView star = findViewById(R.id.star);
-		if (myLocation.Path.equals("/") || myLocation.Path.equals("smb://") || !myLocation.Request.equals("")) {
+		if (myLocation.Path.equals(AbsFile.DEVICE) || myLocation.Path.equals(AbsFile.SAMBA) || myLocation.Path.equals(AbsFile.ROOT) || !myLocation.Request.equals("")) {
 			star.setImageResource(android.R.drawable.btn_star_big_off);
 			star.setOnClickListener(new View.OnClickListener() {
 				@Override
