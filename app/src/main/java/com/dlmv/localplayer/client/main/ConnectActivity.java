@@ -11,6 +11,7 @@ import com.dlmv.localplayer.client.util.ApplicationUtil;
 import com.dlmv.localplayer.client.util.RootApplication;
 import com.dlmv.localplayer.client.util.ServerPath;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -83,80 +84,22 @@ public class ConnectActivity extends Activity {
 	}
 
 	synchronized void checkUri(final String server, final int port) {
-		final ProgressDialog dialog = ProgressDialog.show(this, getResources().getString(R.string.checking), "");
 		final String uri = myServer.getText().toString() + ":" + myPort.getText() + "/";
-		final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
+		tryLogin(ConnectActivity.this, uri, new ServerLoginRunnable() {
 			@Override
-			public void handleStream(InputStream inputStream) throws NetworkException {
+			public void run(String password) {
+				onDialogResult(true, server, port);
 			}
-		};
-		new Thread() {
+		}, new Runnable() {
 			@Override
 			public void run() {
-				try {
-					NetworkManager.Instance().perform(request);
-					onDialogResult(true, dialog, server, port);
-				} catch (final NetworkException e)  {
-					if (e.isUnauthorized()) {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								View dialogView = View.inflate(ConnectActivity.this, R.layout.enter_value, null);
-								((TextView)dialogView.findViewById(R.id.textView1)).setText(getResources().getString(R.string.enterPassword));
-								final EditText input = dialogView.findViewById(R.id.name);
-								final AlertDialog.Builder d = new AlertDialog.Builder(ConnectActivity.this)
-								.setMessage(getResources().getString(R.string.passwordRequired))
-								.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-									@Override
-									public void onClick(DialogInterface dialog1, int which) {
-										final String pass = input.getText().toString();
-										new Thread() {
-											@Override
-											public void run() {
-												final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
-													@Override
-													public void handleStream(InputStream inputStream) throws NetworkException {
-													}
-												};
-												request.addPostParameter(ServerPath.PASSWORD, pass);
-												try {
-													NetworkManager.Instance().perform(request);
-													onDialogResult(true, dialog, server, port);
-												} catch (final NetworkException e)  {
-													runOnUiThread(new Runnable() {
-														public void run() {
-															Toast.makeText(ConnectActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(ConnectActivity.this), Toast.LENGTH_LONG).show();
-														}
-													});
-													onDialogResult(false, dialog, server, port);
-												}
-											}
-											
-										}.start();
-										dialog1.dismiss();
-									}
-								});
-								d.setView(dialogView);
-								d.show();
-							}
-							
-						});
-						return;
-					}
-					runOnUiThread(new Runnable() {
-						public void run() {
-							Toast.makeText(ConnectActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(ConnectActivity.this), Toast.LENGTH_LONG).show();
-						}
-					});
-					onDialogResult(false, dialog, server, port);
-					e.printStackTrace();
-				}
+				onDialogResult(false,  server, port);
 			}
+		}, false);
 
-		}.start();
 	}
 
-	protected void onDialogResult(boolean success, ProgressDialog dialog, final String server, final int port) {
+	protected void onDialogResult(boolean success, final String server, final int port) {
 		if (success) {
 			Intent data = new Intent();
 			data.putExtra("URI", server + ":" + port + "/");
@@ -209,7 +152,6 @@ public class ConnectActivity extends Activity {
 				}
 			});
 		}
-		dialog.dismiss();
 	}
 
 	@Override
@@ -219,5 +161,120 @@ public class ConnectActivity extends Activity {
 			myPort.setText(String.format(Locale.getDefault(), "%d", data.getIntExtra("PORT", 8123)));
 		}
 	}
+
+	public interface ServerLoginRunnable {
+        void run(String password);
+    }
+
+    public static void tryLogin(final Activity a, final String uri, final ServerLoginRunnable okRunnable, final Runnable cancelRunnable, final boolean quiet) {
+		a.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				final ProgressDialog dialog = quiet ? null : ProgressDialog.show(a, a.getResources().getString(R.string.checking), "");
+
+				final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
+					@Override
+					public void handleStream(InputStream inputStream) throws NetworkException {
+					}
+				};
+				new Thread() {
+					@Override
+					public void run() {
+						try {
+							NetworkManager.Instance().perform(request);
+							a.runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (!quiet) {
+										dialog.dismiss();
+									}
+									okRunnable.run("");
+								}
+							});
+						} catch (final NetworkException e)  {
+							a.runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									if (!quiet) {
+										dialog.dismiss();
+									}
+
+									if (e.isUnauthorized()) {
+										login(a, uri, okRunnable, cancelRunnable);
+									} else {
+										Toast.makeText(a, a.getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(a), Toast.LENGTH_LONG).show();
+									}
+								}
+							});
+						}
+					}
+
+				}.start();
+			}
+		});
+	}
+
+	public static void login(final Activity a, final String uri, final ServerLoginRunnable okRunnable, final Runnable cancelRunnable) {
+        a.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View dialogView = View.inflate(a, R.layout.enter_value, null);
+                ((TextView)dialogView.findViewById(R.id.textView1)).setText(a.getResources().getString(R.string.enterPassword));
+                final EditText input = dialogView.findViewById(R.id.name);
+                final AlertDialog.Builder d = new AlertDialog.Builder(a)
+                        .setMessage(a.getResources().getString(R.string.passwordRequired))
+                        .setPositiveButton(a.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog1, int which) {
+                                final String pass = input.getText().toString();
+								final ProgressDialog dialog = ProgressDialog.show(a, a.getResources().getString(R.string.checking), "");
+                                new Thread() {
+                                    @Override
+                                    public void run() {
+                                        final NetworkRequest request = new NetworkRequest(uri + ServerPath.LOGIN) {
+                                            @Override
+                                            public void handleStream(InputStream inputStream) throws NetworkException {
+                                            }
+                                        };
+                                        request.addPostParameter(ServerPath.PASSWORD, pass);
+										try {
+                                            NetworkManager.Instance().perform(request);
+											a.runOnUiThread(new Runnable() {
+												@Override
+												public void run() {
+													dialog.dismiss();
+													okRunnable.run(pass);
+												}
+											});
+                                        } catch (final NetworkException e) {
+                                            a.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+													dialog.dismiss();
+													if (e.isUnauthorized()) {
+                                                        login(a, uri, okRunnable, cancelRunnable);
+                                                    } else {
+                                                        Toast.makeText(a, a.getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(a), Toast.LENGTH_LONG).show();
+                                                    }
+                                                }
+                                                });
+                                            }
+
+                                        }
+                                }.start();
+                            }
+                        }).setNegativeButton(a.getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(final DialogInterface dialog1, int which) {
+                                cancelRunnable.run();
+                            }
+                        });
+
+                d.setView(dialogView);
+                d.show();
+            }
+
+        });
+    }
 
 }

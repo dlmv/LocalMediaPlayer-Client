@@ -285,10 +285,20 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 				} catch (NetworkException e)  {
 					if (e.isUnauthorized()) {
-						//TODO: ask password
+						ConnectActivity.tryLogin(MainActivity.this, uri, new ConnectActivity.ServerLoginRunnable() {
+							@Override
+							public void run(String password) {
+								setUri(uri);
+							}
+						}, new Runnable() {
+							@Override
+							public void run() {
+								setProgressBarVisibility(false);
+							}
+						}, true);
+					} else {
+						onNetworkError(e);
 					}
-					e.printStackTrace();
-					onNetworkError(e);
 				}
 			}
 		}.start();
@@ -491,7 +501,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				Log.e("testmpclient", "wrong tag!!!");
 			}
 			res.myValid = Boolean.parseBoolean(root.getAttribute("valid"));
-			res.myCause= root.getAttribute("reason");
+			res.myCause = root.getAttribute("reason");
 			NodeList list = root.getElementsByTagName("status");
 			if (list.getLength() == 1) {
 				Element e = (Element)list.item(0);
@@ -512,6 +522,13 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				try {
 					if (lazy) {
 						myLazyStatusInProgress = false;
+					} else {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								setProgressBarVisibility(false);
+							}
+						});
 					}
 					if (doInit) {
 						if (ApplicationUtil.Data.serverUri != null) {
@@ -526,6 +543,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	private void performRequest(final NetworkRequest request, final boolean lazy) {
+		if (ApplicationUtil.Data.serverUri == null) {
+			return;
+		}
 		if (!lazy) {
 			setProgressBarVisibility(true);
 		} else {
@@ -539,10 +559,18 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				} catch (NetworkException e)  {
 					if (lazy) {
 						myLazyStatusInProgress = false;
+						if (e.isUnauthorized()) {
+							onNetworkError(e);
+						}
 					} else {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								setProgressBarVisibility(false);
+							}
+						});
 						onNetworkError(e);
 					}
-					e.printStackTrace();
 				}
 			}
 		}.start();
@@ -563,8 +591,22 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	void onNetworkError(final NetworkException e) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Toast.makeText(MainActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(MainActivity.this), Toast.LENGTH_LONG).show();
-				setProgressBarVisibility(false);
+				if (e.isUnauthorized()) {
+					setProgressBarVisibility(false);
+					ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {
+						@Override
+						public void run(String password) {
+							setUri(ApplicationUtil.Data.serverUri);
+						}
+					}, new Runnable() {
+						@Override
+						public void run() {
+							setUri(null);
+						}
+					}, true);
+				} else {
+					Toast.makeText(MainActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(MainActivity.this), Toast.LENGTH_LONG).show();
+				}
 			}
 		});	
 	}
@@ -619,36 +661,28 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 
 	void init(final Response r) {
+		Log.d("WTF", "init");
 		getStatus(true);
-		if (!r.myValid) {
-			if (r.myCause.startsWith("loginNeeded:")) {
-				final String share =r.myCause.substring("loginNeeded:".length() + 1).trim();
-				runOnUiThread(new Runnable() {
-					public void run() {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				if (!r.myValid) {
+					if (r.myCause.startsWith("loginNeeded:")) {
+						final String share = r.myCause.substring("loginNeeded:".length() + 1).trim();
 						showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
 							@Override
-							public  void  run(String login, String password) {
+							public void run(String login, String password) {
 								test(share, login, password);
 							}
 						});
-					}
-				});
-			} else {
-				runOnUiThread(new Runnable() {
-					public void run() {
+					} else {
 						Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
-						setProgressBarVisibility(false);
 					}
-				});
-			}
-		}
-		myStatus = r.myStatus;
-		setPosition(myStatus.myCurrentPosition, true);
-		runOnUiThread(new Runnable() {
-			public void run() {
+				}
+				myStatus = r.myStatus;
+				setPosition(myStatus.myCurrentPosition, true);
 				invalidateOptionsMenu();
 				myPlayList.clear();
-					myPlayList.addAll(myStatus.myPlaylist);
+				myPlayList.addAll(myStatus.myPlaylist);
 				myAdapter.notifyDataSetChanged();
 				if (myStatus.myState.equals(PlayerStatus.State.PLAYING)) {
 					myPlayButton.setImageResource(R.drawable.pause);
@@ -657,16 +691,16 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				}
 				if (myStatus.myType.equals(PlayerStatus.PlaylistType.CYCLIC)) {
 					myPlaytypeButton.setImageResource(R.drawable.cycle);
-				} else {
+							} else {
 					myPlaytypeButton.setImageResource(R.drawable.linear);
 				}
 				setPlayBar();
 				setVolumeBar();
 				setupVolumeDialog();
-				setProgressBarVisibility(false);
 				getContentView().postInvalidate();
 			}
 		});
+
 	}
 
 	protected View getContentView() {
