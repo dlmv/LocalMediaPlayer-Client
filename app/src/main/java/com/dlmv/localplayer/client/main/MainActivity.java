@@ -236,6 +236,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	private void setUri(String uri) {
+		myLoginErrorHandled = false;
 		ApplicationUtil.Data.setUri(uri);
 		Response r = new Response();
 		r.myStatus = new PlayerStatus();
@@ -588,22 +589,27 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		performRequest(request, lazy);
 	}
 
+	private boolean myLoginErrorHandled = false;
+
 	void onNetworkError(final NetworkException e) {
 		runOnUiThread(new Runnable() {
 			public void run() {
 				if (e.isUnauthorized()) {
 					setProgressBarVisibility(false);
-					ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {
-						@Override
-						public void run(String password) {
-							setUri(ApplicationUtil.Data.serverUri);
-						}
-					}, new Runnable() {
-						@Override
-						public void run() {
-							setUri(null);
-						}
-					}, true);
+					if (!myLoginErrorHandled) {
+						myLoginErrorHandled = true;
+						ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {
+							@Override
+							public void run(String password) {
+								setUri(ApplicationUtil.Data.serverUri);
+							}
+						}, new Runnable() {
+							@Override
+							public void run() {
+								setUri(null);
+							}
+						}, true);
+					}
 				} else {
 					Toast.makeText(MainActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(MainActivity.this), Toast.LENGTH_LONG).show();
 				}
