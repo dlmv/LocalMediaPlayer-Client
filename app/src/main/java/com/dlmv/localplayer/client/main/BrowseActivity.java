@@ -411,6 +411,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				ApplicationUtil.Data.cache.put(myLocation, res.myContent);
                 ApplicationUtil.Data.lastLocation = myLocation;
 				initStar();
+				invalidateOptionsMenu();
 			}
 		});
 	}
@@ -527,6 +528,15 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_browse, menu);
+
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		menu.findItem(R.id.menu_search).setVisible(!myLocation.Path.equals(AbsFile.ROOT));
+		menu.findItem(R.id.menu_filter).setVisible(!myLocation.Path.equals(AbsFile.ROOT));
 
 		return true;
 	}
