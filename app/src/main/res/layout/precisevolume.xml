@@ -9,28 +9,54 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Player volume" />
+            android:text="@string/mp_volume" />
     
         <SeekBar
             android:id="@+id/volumebar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:padding="20dp" />
 
          <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="Background volume" />
+            android:text="@string/back_volume" />
         
         <SeekBar
             android:id="@+id/backvolumebar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:padding="20dp" />
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/back_file" />
+        <TextView
+            android:id="@+id/backTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceMedium"
+            android:text="" />
+        <LinearLayout
+            android:id="@+id/BackButtonsPanel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <ImageButton
+                android:id="@+id/playbackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/play" />
+
+            <ImageButton
+                android:id="@+id/stopbackground"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/stop_background" />
+
+        </LinearLayout>
 
 </LinearLayout>

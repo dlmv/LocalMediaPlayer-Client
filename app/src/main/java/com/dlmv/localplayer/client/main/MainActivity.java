@@ -201,8 +201,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				if (myStatus.myState.equals(PlayerStatus.State.STOPPED) || myStatus.myState.equals(PlayerStatus.State.PAUSED)) {
 					NetworkRequest request = getRequest("play");
 					performRequest(request, false);
-				}
-				if (myStatus.myState.equals(PlayerStatus.State.PLAYING)) {
+				} else if (myStatus.myState.equals(PlayerStatus.State.PLAYING)) {
 					NetworkRequest request = getRequest("pause");
 					performRequest(request, false);
 				}
@@ -353,7 +352,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		menu.findItem(R.id.menu_reload).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_open).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_volume).setVisible(ApplicationUtil.Data.serverUri != null);
-		menu.findItem(R.id.menu_stop_background).setVisible(ApplicationUtil.Data.serverUri != null && myStatus.myBackItem != null);
 		return true;
 	}
 
@@ -370,10 +368,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 		if (item.getItemId() == R.id.menu_volume) {
 			showVolumeDialog();
-		}
-		if (item.getItemId() == R.id.menu_stop_background) {
-			final NetworkRequest request = getRequest("stopbackground");
-			performRequest(request, false);
 		}
 		return true;
 	}
@@ -405,8 +399,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				}
 			}
 		});
-		vol.setMax(myStatus.myMpMaxVolume);
-		vol.setProgress(myStatus.myMpVolume);
 
 		SeekBar volb = dialogView.findViewById(R.id.backvolumebar);
 		volb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -431,8 +423,29 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				}
 			}
 		});
-		volb.setMax(myStatus.myBackMpMaxVolume);
-		volb.setProgress(myStatus.myBackMpVolume);
+
+		ImageButton playButton = dialogView.findViewById(R.id.playbackground);
+		playButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				if (myStatus.myBackState.equals(PlayerStatus.State.PAUSED)) {
+					NetworkRequest request = getRequest("resumebackground");
+					performRequest(request, false);
+				} else if (myStatus.myBackState.equals(PlayerStatus.State.PLAYING)) {
+					NetworkRequest request = getRequest("pausebackground");
+					performRequest(request, false);
+				}
+			}
+		});
+		ImageButton stopButton = dialogView.findViewById(R.id.stopbackground);
+		stopButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				NetworkRequest request = getRequest("stopbackground");
+				performRequest(request, false);
+			}
+		});
+
 		final AlertDialog.Builder d = new AlertDialog.Builder(this);
 		d.setView(dialogView);
 		d.setOnCancelListener(new OnCancelListener() {
@@ -442,6 +455,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			}
 		});
 		myVolumeDialog = d.show();
+		setupVolumeDialog();
 	}
 
 	private void showOpenDialog() {
@@ -663,7 +677,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				}
 				setPlayBar();
 				setVolumeBar();
-				setMpVolumeBar();
+				setupVolumeDialog();
 				setProgressBarVisibility(false);
 				getContentView().postInvalidate();
 			}
@@ -702,7 +716,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		}
 	}
 
-	private void setMpVolumeBar() {
+	private void setupVolumeDialog() {
 		if (myVolumeDialog == null) {
 			return;
 		}
@@ -725,6 +739,26 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				s.setMax(0);
 				s.setProgress(0);
 			}
+		}
+		ImageButton playButton = myVolumeDialog.findViewById(R.id.playbackground);
+		ImageButton stopButton = myVolumeDialog.findViewById(R.id.stopbackground);
+		TextView backTitle = myVolumeDialog.findViewById(R.id.backTitle);
+		if (myStatus.myBackState.equals(PlayerStatus.State.PLAYING)) {
+			playButton.setVisibility(View.VISIBLE);
+			stopButton.setVisibility(View.VISIBLE);
+			playButton.setImageResource(R.drawable.pause);
+		} else if (myStatus.myBackState.equals(PlayerStatus.State.PAUSED)) {
+			playButton.setVisibility(View.VISIBLE);
+			stopButton.setVisibility(View.VISIBLE);
+			playButton.setImageResource(R.drawable.play);
+		} else {
+			playButton.setVisibility(View.GONE);
+			stopButton.setVisibility(View.GONE);
+		}
+		if (myStatus.myBackItem != null) {
+			backTitle.setText(myStatus.myBackItem.getName());
+		} else {
+			backTitle.setText(R.string.empty);
 		}
 	}
 

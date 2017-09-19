@@ -44,7 +44,7 @@ public abstract class DBListActivity<T> extends ListActivity {
 			});
 		}
 		registerForContextMenu(getListView());
-		((TextView)findViewById(android.R.id.empty)).setText(getResources().getString(R.string.noBookmarks));
+		((TextView)findViewById(android.R.id.empty)).setText(getResources().getString(R.string.empty));
 	}
 	
 	private class Adapter extends ArrayAdapter<T>{

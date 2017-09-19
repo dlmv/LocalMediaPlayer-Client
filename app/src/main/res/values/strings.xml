@@ -10,7 +10,7 @@
     <string name="menu_bookmarks">Bookmarks</string>
     <string name="menu_search">Search</string>
     <string name="menu_filter">Filter</string>
-    <string name="menu_volume">Volume</string>
+    <string name="menu_volume">Volume and background</string>
     <string name="menu_radio">Radio</string>
     <string name="menu_stop_background">Stop Background</string>
     <string name="playlist">Playlist</string>
@@ -53,8 +53,7 @@
     <string name="bookmarkAdded">" added to bookmarks"</string>
     <string name="bookmarkRemoved">" removed from bookmarks"</string>
     <string name="servers">Servers</string>
-    <string name="noBookmarks">No bookmarks</string>
-    <string name="noServers">No servers</string>
+    <string name="empty">Empty</string>
     <string name="networkError">Network Error</string>
     <string name="unauthorized">Unauthorized</string>
     <string name="login">Login:</string>
@@ -62,6 +61,10 @@
     <string name="menu_logins">Saved Logins</string>
     <string name="shareLoginRequired">Login required for: \n%s</string>
     <string name="disconnected">Disconnected</string>
+    <string name="mp_volume">Playlist volume</string>
+    <string name="back_volume">Background volume</string>
+    <string name="back_file">Background file</string>
+
 
 
 </resources>
