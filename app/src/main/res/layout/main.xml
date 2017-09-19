@@ -95,27 +95,9 @@
             android:id="@+id/volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/shared_button"
+            android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:src="@drawable/volume" />
-
-        <ImageButton
-            android:id="@+id/local_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp"
-            android:src="@drawable/local" />
-
-        <ImageButton
-            android:id="@+id/shared_button"
-            android:layout_below="@+id/local_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp"
-            android:src="@drawable/shared" />
 
         <android.widget.VerticalSeekBar
             android:id="@+id/volumebar"

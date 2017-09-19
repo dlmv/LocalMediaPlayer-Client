@@ -33,7 +33,7 @@ class DirAdapter extends ArrayAdapter<AbsFile> {
 			sizeView.setText("");
 			return convertView;
 		}
-		textView.setText(f.getName());
+		textView.setText(f.getName(getContext()));
 		sizeView.setText(f.Size);
 
 		if (f.Type.equals(AbsFile.MediaType.DIR)) {

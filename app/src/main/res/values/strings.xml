@@ -9,6 +9,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_bookmarks">Bookmarks</string>
     <string name="menu_search">Search</string>
+    <string name="menu_browse">Browse</string>
     <string name="menu_filter">Filter</string>
     <string name="menu_volume">Volume and background</string>
     <string name="menu_stop_background">Stop Background</string>
@@ -64,7 +65,9 @@
     <string name="mp_volume">Playlist volume</string>
     <string name="back_volume">Background volume</string>
     <string name="back_file">Background file</string>
-
+    <string name="device">Device</string>
+    <string name="network">Network</string>
+    <string name="files">Files</string>
 
 
 </resources>

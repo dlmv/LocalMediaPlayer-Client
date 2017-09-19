@@ -1,11 +1,22 @@
 package com.dlmv.localplayer.client.util;
 
+import android.content.Context;
+import android.util.Log;
+
+import com.dlmv.localmediaplayer.client.R;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 
 import org.w3c.dom.Element;
 
 public class AbsFile {
+
+	public static final String ROOT = "Files";
+	public static final String DEVICE = "/";
+	public static final String SAMBA = "smb://";
+
 
 	public final String Path;
 	public final String Size;
@@ -29,8 +40,15 @@ public class AbsFile {
 		return Path.equals(a.Path);
 	}
 
+	public static ArrayList<AbsFile> rootList() {
+		ArrayList<AbsFile> res = new ArrayList<>();
+		res.add(new AbsFile(DEVICE, true, "", MediaType.DIR));
+		res.add(new AbsFile(SAMBA, true, "", MediaType.DIR));
+		return  res;
+	}
+
 	AbsFile(String path, boolean readable, String size, MediaType mt) {
-		if (path.endsWith("/") && !path.equals("smb://") && !path.equals("/")) {
+		if (path.endsWith("/") && !path.equals(SAMBA) && !path.equals(DEVICE)) {
 			Path = path.substring(0, path.length() - 1);
 		} else {
 			Path = path;
@@ -40,17 +58,27 @@ public class AbsFile {
 		Type = mt;
 	}
 
-	public String getName() {
-		if (Path.equals("/") || Path.equals("smb://")) {
-			return Path;
+	public String getName(Context c) {
+		return name(Path, c);
+	}
+
+	public static String name(String path, Context c) {
+		switch (path) {
+			case ROOT:
+				return c.getResources().getString(R.string.files);
+			case DEVICE:
+				return c.getResources().getString(R.string.device);
+			case SAMBA:
+				return c.getResources().getString(R.string.network);
+			default:
+				int divider = path.lastIndexOf("/");
+				return path.substring(divider + 1);
 		}
-		int divider = Path.lastIndexOf("/");
-		return Path.substring(divider + 1);
 	}
 	
 	public String getPath() {
 		if (Type.equals(MediaType.DIR) || Type.equals(MediaType.UP)) {
-			if (!Path.endsWith("/")) {
+			if (!Path.endsWith("/") && !Path.equals(ROOT) && !Path.equals(SAMBA) && !Path.equals(DEVICE)) {
 				return Path + "/";
 			}
 			return Path;
@@ -62,11 +90,14 @@ public class AbsFile {
 		}
 	}
 
-	public static String parent(String Path) {
-		if (Path.equals("/") || Path.equals("smb://")) {
+	public static String parent(String path) {
+        Log.d("WTF", path);
+		if (path.equals(ROOT)) {
 			return null;
+		} else if (path.equals(DEVICE) || path.equals(SAMBA)) {
+			return ROOT;
 		} else {
-			String path = Path.substring(0, Path.length() - 1);
+			path = path.substring(0, path.length() - 1);
 			int divider = path.lastIndexOf("/");
 			return path.substring(0, divider) + "/";
 		}

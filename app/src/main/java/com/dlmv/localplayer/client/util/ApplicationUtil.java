@@ -61,13 +61,19 @@ public abstract class ApplicationUtil {
 	
 	
 	 public static class DataHolder {
-		public Location lastLocalLocation = new Location("/", "");
-		public Location lastSmbLocation = new Location("smb://", "");
-		
+		public Location lastLocation = new Location(AbsFile.ROOT, "");
+
 		public Stack<Location> history = new Stack<>();
 		public HashMap<Location, ArrayList<AbsFile>> cache = new HashMap<>();
 		
 		public String serverUri = null;
+
+        public void setUri(String uri) {
+            lastLocation = new Location(AbsFile.ROOT, "");
+            history.clear();
+            cache.clear();
+            serverUri = uri;
+        }
 	}
 	
 	public static final DataHolder Data = new DataHolder();
@@ -82,19 +88,11 @@ public abstract class ApplicationUtil {
 	public static final int BOOKMARKS_CODE = 1;
 	public static final int BROWSE_CODE = 2;
 
-	public static void browseLocal(Activity c) {
+	public static void browse(Activity c) {
 		Intent i = new Intent();
 		i.setClass(c, BrowseActivity.class);
-		i.putExtra(LOCATION_PATH, Data.lastLocalLocation.Path);
-		i.putExtra(LOCATION_REQUEST, Data.lastLocalLocation.Request);
-		c.startActivityForResult(i, BROWSE_CODE);
-	}
-	
-	public static void browseSmb(Activity c) {
-		Intent i = new Intent();
-		i.setClass(c, BrowseActivity.class);
-		i.putExtra(LOCATION_PATH, Data.lastSmbLocation.Path);
-		i.putExtra(LOCATION_REQUEST, Data.lastSmbLocation.Request);
+		i.putExtra(LOCATION_PATH, Data.lastLocation.Path);
+		i.putExtra(LOCATION_REQUEST, Data.lastLocation.Request);
 		c.startActivityForResult(i, BROWSE_CODE);
 	}
 	

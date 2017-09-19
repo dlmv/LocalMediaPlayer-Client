@@ -16,10 +16,10 @@
         android:showAsAction="always"
         android:title="@string/menu_reload"/>
     <item
-        android:id="@+id/menu_open"
-        android:icon="@drawable/open"
+        android:id="@+id/menu_browse"
+        android:icon="@drawable/browse"
         android:showAsAction="ifRoom"
-        android:title="@string/menu_open"/>
+        android:title="@string/menu_browse"/>
     <item
         android:id="@+id/menu_volume"
         android:icon="@drawable/menu_volume"

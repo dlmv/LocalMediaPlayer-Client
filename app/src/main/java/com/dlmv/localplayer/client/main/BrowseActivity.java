@@ -41,13 +41,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		private ArrayList<AbsFile> myContent;
 	}
 
-	private enum Mode {
-		LOCAL,
-		SMB,
-	}
-
-	private Mode myMode;
-
 	static class Parser {
 		Response parse(InputStream s) throws ParserConfigurationException, SAXException, IOException {
 			Response res = new Response();
@@ -208,6 +201,14 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			myTempLocation = myLocation;
 		}
 		myLocationToOpen = l;
+		if (l.Path.equals(AbsFile.ROOT)) {
+            Response r = new Response();
+            r.myValid = true;
+            r.myLocation = l;
+            r.myContent = AbsFile.rootList();
+            init(r);
+            return;
+        }
 		if (!force && ApplicationUtil.Data.cache.containsKey(l)) {
 			Response r = new Response();
 			r.myValid = true;
@@ -359,14 +360,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		if (!res.myLocation.equals(myLocationToOpen)) {
 			return;
 		}
-		if (myLocationToOpen.Path.startsWith("smb://")) {
-			myMode = Mode.SMB;
-		} else if (myLocationToOpen.Path.startsWith("/")) {
-			myMode = Mode.LOCAL;
-		} else {
-			prepareToDie();
-			finish();
-		}
+
 		myLocationToOpen = null;
 		runOnUiThread(new Runnable() {
 			@Override
@@ -374,12 +368,8 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				TextView t = findViewById(R.id.dir_header);
 				if (!res.myLocation.Request.equals("")) {
 					t.setText(getResources().getString(R.string.searchResult));
-				} else if (res.myLocation.Path.equals("/") || res.myLocation.Path.equals("smb://")) {
-					t.setText(res.myLocation.Path);
 				} else {
-					String path = res.myLocation.Path.substring(0, res.myLocation.Path.length() - 1);
-					int divider = path.lastIndexOf("/");
-					t.setText(path.substring(divider+1));
+					t.setText(AbsFile.name(res.myLocation.Path, BrowseActivity.this));
 				}
 				myFullContent.clear();
 				if (AbsFile.parent(res.myLocation.Path) != null) {
@@ -414,17 +404,12 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 					ApplicationUtil.Data.history.push(myLocation);
 				}
 				String p = res.myLocation.Path;
-				if (!p.endsWith("/")) {
+				if (!p.endsWith("/") && !p.equals(AbsFile.ROOT)) {
 					p +=  "/";
 				}
 				myLocation = new Location(p, res.myLocation.Request);
 				ApplicationUtil.Data.cache.put(myLocation, res.myContent);
-				if (myMode.equals(Mode.LOCAL)) {
-					ApplicationUtil.Data.lastLocalLocation = myLocation;
-				}
-				if (myMode.equals(Mode.SMB)) {
-					ApplicationUtil.Data.lastSmbLocation = myLocation;
-				}
+                ApplicationUtil.Data.lastLocation = myLocation;
 				initStar();
 			}
 		});
@@ -643,7 +628,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			myCurrentContent.addAll(myFullContent);
 		} else {
 			for (AbsFile f : myFullContent) {
-				if (f.getName().toLowerCase().contains(myFilter.toLowerCase())) {
+				if (f.getName(this).toLowerCase().contains(myFilter.toLowerCase())) {
 					myCurrentContent.add(f);
 				}
 			}

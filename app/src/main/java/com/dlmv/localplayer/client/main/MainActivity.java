@@ -110,24 +110,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 		setProgressBarVisibility(true);
 
-		ImageButton b = findViewById(R.id.local_button);
-		b.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ApplicationUtil.browseLocal(MainActivity.this);
-			}
-		});
-		b.setEnabled(ApplicationUtil.Data.serverUri != null);
-
-		ImageButton b1 = findViewById(R.id.shared_button);
-		b1.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				ApplicationUtil.browseSmb(MainActivity.this);
-			}
-		});
-		b1.setEnabled(ApplicationUtil.Data.serverUri != null);
-
 		ListView l = findViewById(R.id.list);
 		myAdapter = new PlayListAdapter(this, myPlayList);
 		l.setAdapter(myAdapter);
@@ -253,10 +235,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	private void setUri(String uri) {
-		ApplicationUtil.Data.serverUri = uri;
-		ApplicationUtil.Data.cache.clear();
-		ApplicationUtil.Data.lastLocalLocation = new ApplicationUtil.Location("/", "");
-		ApplicationUtil.Data.lastSmbLocation = new ApplicationUtil.Location("smb://", "");
+		ApplicationUtil.Data.setUri(uri);
 		Response r = new Response();
 		r.myStatus = new PlayerStatus();
 		r.myValid = uri != null;
@@ -269,10 +248,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		editor.apply();
 
 		invalidateOptionsMenu();
-		ImageButton b = findViewById(R.id.local_button);
-		b.setEnabled(ApplicationUtil.Data.serverUri != null);
-		ImageButton b1 = findViewById(R.id.shared_button);
-		b1.setEnabled(ApplicationUtil.Data.serverUri != null);
 
 	}
 
@@ -350,7 +325,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		menu.findItem(R.id.menu_connect).setVisible(ApplicationUtil.Data.serverUri == null);
 		menu.findItem(R.id.menu_connected).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_reload).setVisible(ApplicationUtil.Data.serverUri != null);
-		menu.findItem(R.id.menu_open).setVisible(ApplicationUtil.Data.serverUri != null);
+		menu.findItem(R.id.menu_browse).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_volume).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_settings).setVisible(ApplicationUtil.Data.serverUri != null);
 		return true;
@@ -364,8 +339,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (item.getItemId() == R.id.menu_reload) {
 			reload();
 		}
-		if (item.getItemId() == R.id.menu_open) {
-			showOpenDialog();
+		if (item.getItemId() == R.id.menu_browse) {
+			ApplicationUtil.browse(this);
 		}
 		if (item.getItemId() == R.id.menu_volume) {
 			showVolumeDialog();
@@ -490,31 +465,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		});
 		myVolumeDialog = d.show();
 		setupVolumeDialog();
-	}
-
-	private void showOpenDialog() {
-		View dialogView = View.inflate(this, R.layout.enter_value, null);
-		((TextView)dialogView.findViewById(R.id.textView1)).setText(getResources().getString(R.string.path));
-		final EditText input = dialogView.findViewById(R.id.name);
-		input.setText("");
-		final AlertDialog.Builder d = new AlertDialog.Builder(this)
-		.setMessage(getResources().getString(R.string.enterPath))
-		.setNeutralButton(getResources().getString(R.string.menu_bookmarks), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog1, int which) {
-				ApplicationUtil.showBookmarks(MainActivity.this);
-			}
-		})
-		.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog1, int which) {
-				final String uri = input.getText().toString();
-				dialog1.dismiss();
-				ApplicationUtil.open(MainActivity.this, uri);
-			}
-		});
-		d.setView(dialogView);
-		d.show();
 	}
 
 	public void reload() {
