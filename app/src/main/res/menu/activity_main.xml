@@ -18,11 +18,16 @@
     <item
         android:id="@+id/menu_open"
         android:icon="@drawable/open"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom"
         android:title="@string/menu_open"/>
     <item
         android:id="@+id/menu_volume"
         android:icon="@drawable/menu_volume"
-        android:showAsAction="never"
+        android:showAsAction="ifRoom"
         android:title="@string/menu_volume"/>
+    <item
+        android:id="@+id/menu_settings"
+        android:icon="@drawable/menu_settings"
+        android:showAsAction="ifRoom"
+        android:title="@string/menu_settings"/>
 </menu>

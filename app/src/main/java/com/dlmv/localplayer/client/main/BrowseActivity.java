@@ -563,9 +563,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		if (item.getItemId() == R.id.menu_filter) {
 			showFilterDialog();
 		}
-		if (item.getItemId() == R.id.menu_logins) {
-			showLogins();
-		}
 		return true;
 	}
 
@@ -720,20 +717,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				}
 			});
 		}
-	}
-	
-	void showLogins() {
-		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + "loginlist") {
-			@Override
-			public void handleStream(InputStream inputStream) throws NetworkException {
-				try {
-					ShareLoginsActivity.callMe(new ShareLoginsActivity.Parser().parse(inputStream), BrowseActivity.this);
-				} catch (Exception e) {
-					throw  new NetworkException(e);
-				}
-			}
-		};
-		performRequest(request, true);
 	}
 
 }

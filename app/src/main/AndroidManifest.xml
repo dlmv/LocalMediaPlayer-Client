@@ -47,7 +47,7 @@
         </activity>
         <activity
             android:name="com.dlmv.localplayer.client.db.ShareLoginsActivity"
-            android:label="@string/menu_logins"
+            android:label="@string/logins"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
         <activity

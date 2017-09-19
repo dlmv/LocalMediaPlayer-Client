@@ -352,6 +352,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		menu.findItem(R.id.menu_reload).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_open).setVisible(ApplicationUtil.Data.serverUri != null);
 		menu.findItem(R.id.menu_volume).setVisible(ApplicationUtil.Data.serverUri != null);
+		menu.findItem(R.id.menu_settings).setVisible(ApplicationUtil.Data.serverUri != null);
 		return true;
 	}
 
@@ -369,7 +370,40 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (item.getItemId() == R.id.menu_volume) {
 			showVolumeDialog();
 		}
+		if (item.getItemId() == R.id.menu_settings) {
+			showSettingsDialog();
+		}
 		return true;
+	}
+
+	private void showSettingsDialog() {
+		View dialogView = View.inflate(this, R.layout.settingsdialog, null);
+		final AlertDialog.Builder d = new AlertDialog.Builder(this);
+		Button passwordButton = dialogView.findViewById(R.id.setPassword);
+		Button loginsButton = dialogView.findViewById(R.id.editLogins);
+		loginsButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				showLogins();
+			}
+		});
+		d.setView(dialogView);
+		d.show();
+		setupVolumeDialog();
+	}
+
+	void showLogins() {
+		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + "loginlist") {
+			@Override
+			public void handleStream(InputStream inputStream) throws NetworkException {
+				try {
+					ShareLoginsActivity.callMe(new ShareLoginsActivity.Parser().parse(inputStream), MainActivity.this);
+				} catch (Exception e) {
+					throw  new NetworkException(e);
+				}
+			}
+		};
+		performRequest(request, false);
 	}
 
 	private AlertDialog myVolumeDialog = null;
