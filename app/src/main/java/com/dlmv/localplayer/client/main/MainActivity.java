@@ -594,8 +594,8 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	void onNetworkError(final NetworkException e) {
 		runOnUiThread(new Runnable() {
 			public void run() {
+				setProgressBarVisibility(false);
 				if (e.isUnauthorized()) {
-					setProgressBarVisibility(false);
 					if (!myLoginErrorHandled) {
 						myLoginErrorHandled = true;
 						ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {

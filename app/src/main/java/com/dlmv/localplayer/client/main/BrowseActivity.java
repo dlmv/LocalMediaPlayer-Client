@@ -148,6 +148,13 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				try {
 					if (init) {
 						init(new Parser().parse(inputStream));
+					} else {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								setMyProgressBarVisibility(false);
+							}
+						});
 					}
 				} catch (Exception e) {
 					throw new NetworkException(e);
@@ -174,20 +181,16 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		};
 	}
 
-	private void performRequest(final NetworkRequest request, final boolean quiet) {
-		if (!quiet) {
-			setMyProgressBarVisibility(true);
-		}
+	private void performRequest(final NetworkRequest request) {
+		setMyProgressBarVisibility(true);
 		new Thread() {
 			@Override
 			public void run() {
 				try {
 					NetworkManager.Instance().perform(request);
 				} catch (NetworkException e)  {
-					if (!quiet) {
-						onNetworkError(e);
-					}
-					e.printStackTrace();
+					onNetworkError(e);
+
 				}
 			}
 		}.start();
@@ -223,7 +226,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		final NetworkRequest request = getRequest(uri);
 		request.addPostParameter(ServerPath.PATH, l.Path);
 		request.addPostParameter(ServerPath.REQUEST, l.Request);
-		performRequest(request, false);
+		performRequest(request);
 	}
 	
 	private void open(Location l, String login, String password) {
@@ -238,13 +241,13 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		request.addPostParameter(ServerPath.REQUEST, l.Request);
 		request.addPostParameter(ServerPath.LOGIN, login);
 		request.addPostParameter(ServerPath.PASSWORD, password);
-		performRequest(request, false);
+		performRequest(request);
 	}
 
 	private void test(String path, Runnable doAfter) {
 		final NetworkRequest request = getTestRequest(path, doAfter);
 		request.addPostParameter(ServerPath.PATH, path);
-		performRequest(request, false);
+		performRequest(request);
 	}
 
 	private void test(String path, Runnable doAfter, String login, String password) {
@@ -252,11 +255,11 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		request.addPostParameter(ServerPath.PATH, path);
 		request.addPostParameter(ServerPath.LOGIN, login);
 		request.addPostParameter(ServerPath.PASSWORD, password);
-		performRequest(request, false);
+		performRequest(request);
 	}
 
 	private void stopSearch() {
-		performRequest(getRequest(ServerPath.STOP_SEARCH), true);
+		performRequest(getRequest(ServerPath.STOP_SEARCH, false));
 	}
 
 	private boolean back() {
@@ -284,8 +287,14 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 	void onNetworkError(final NetworkException e) {
 		runOnUiThread(new Runnable() {
 			public void run() {
-				Toast.makeText(BrowseActivity.this, getResources().getString(R.string.networkError) + ": " + e.getLocalizedMessage(BrowseActivity.this), Toast.LENGTH_SHORT).show();
 				setMyProgressBarVisibility(false);
+
+				if (e.isUnauthorized()) {
+					prepareToDie();
+					finish();
+				} else {
+					Toast.makeText(BrowseActivity.this, getResources().getString(R.string.networkError) + ": " + e.getLocalizedMessage(BrowseActivity.this), Toast.LENGTH_SHORT).show();
+				}
 			}
 		});	
 	}
@@ -333,39 +342,31 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		if (iamDying) {
 			return;
 		}
-		mySearchDialog.dismiss();
-		if (!res.myValid) {
-			if (res.myCause.startsWith("loginNeeded:")) {
-				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
-				runOnUiThread(new Runnable() {
-					public void run() {
-						showLoginDialog(BrowseActivity.this, share, new ApplicationUtil.LoginRunnable() {
-							@Override
-							public  void  run(String login, String password) {
-								open(myLocationToOpen, login, password);
-							}
-						});
-					}
-				});
-				return;
-			} else {
-				runOnUiThread(new Runnable() {
-					public void run() {
-						Toast.makeText(BrowseActivity.this, res.myCause, Toast.LENGTH_SHORT).show();
-						setMyProgressBarVisibility(false);
-					}
-				});
-				return;
-			}
-		}
-		if (!res.myLocation.equals(myLocationToOpen)) {
-			return;
-		}
-
-		myLocationToOpen = null;
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				mySearchDialog.dismiss();
+				if (!res.myValid) {
+					if (res.myCause.startsWith("loginNeeded:")) {
+						final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
+						showLoginDialog(BrowseActivity.this, share, new ApplicationUtil.LoginRunnable() {
+							@Override
+							public void run(String login, String password) {
+								open(myLocationToOpen, login, password);
+							}
+						});
+						return;
+					} else {
+						Toast.makeText(BrowseActivity.this, res.myCause, Toast.LENGTH_SHORT).show();
+						setMyProgressBarVisibility(false);
+						return;
+					}
+				}
+				if (!res.myLocation.equals(myLocationToOpen)) {
+					return;
+				}
+
+				myLocationToOpen = null;
 				TextView t = findViewById(R.id.dir_header);
 				if (!res.myLocation.Request.equals("")) {
 					t.setText(getResources().getString(R.string.searchResult));
@@ -393,12 +394,12 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 					myTempLocation = null;
 				}
 				final int sel1 = sel;
-				getListView().post(new Runnable(){
-					@Override
-					public void run() {
-						getListView().setSelection(sel1);
-					}
-				}
+				getListView().post(new Runnable() {
+											   @Override
+											   public void run() {
+												   getListView().setSelection(sel1);
+											   }
+										   }
 				);
 				setMyProgressBarVisibility(false);
 				if (myLocation != null && (ApplicationUtil.Data.history.empty() || !ApplicationUtil.Data.history.peek().equals(myLocation))) {
@@ -406,11 +407,11 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				}
 				String p = res.myLocation.Path;
 				if (!p.endsWith("/") && !p.equals(AbsFile.ROOT)) {
-					p +=  "/";
+					p += "/";
 				}
 				myLocation = new Location(p, res.myLocation.Request);
 				ApplicationUtil.Data.cache.put(myLocation, res.myContent);
-                ApplicationUtil.Data.lastLocation = myLocation;
+				ApplicationUtil.Data.lastLocation = myLocation;
 				initStar();
 				invalidateOptionsMenu();
 			}
@@ -490,7 +491,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				public void run() {
 					NetworkRequest request = getRequest(ServerPath.ENQUEUE, false);
 					request.addPostParameter(ServerPath.PATH, f.getPath());
-					performRequest(request, true);
+					performRequest(request);
 				}
 			});
 		}
@@ -500,7 +501,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 				public void run() {
 					NetworkRequest request = getRequest(ServerPath.ENQUEUE_AND_PLAY, false);
 					request.addPostParameter(ServerPath.PATH, f.getPath());
-					performRequest(request, true);
+					performRequest(request);
 					setResult(RESULT_FIRST_USER);
 					prepareToDie();
 					finish();
@@ -517,9 +518,9 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 			test(f.getPath(), new Runnable() {
 				@Override
 				public void run() {
-					NetworkRequest request = getRequest(ServerPath.PLAY_BACKGROUND);
+					NetworkRequest request = getRequest(ServerPath.PLAY_BACKGROUND, false);
 					request.addPostParameter(ServerPath.PATH, f.getPath());
-					performRequest(request, true);
+					performRequest(request);
 				}
 			});
 		}

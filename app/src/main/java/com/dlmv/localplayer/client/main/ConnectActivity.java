@@ -116,6 +116,8 @@ public class ConnectActivity extends Activity {
 					}
 					View dialogView = View.inflate(ConnectActivity.this, R.layout.enter_value, null);
 					final EditText input = dialogView.findViewById(R.id.name);
+					final TextView tv = dialogView.findViewById(R.id.textView1);
+					tv.setText(getResources().getString(R.string.enterName));
 					final AlertDialog.Builder d = new AlertDialog.Builder(ConnectActivity.this)
 					.setMessage(getResources().getString(R.string.saveServer))
 					.setPositiveButton(getResources().getString(R.string.yes), new DialogInterface.OnClickListener() {
@@ -222,7 +224,7 @@ public class ConnectActivity extends Activity {
                 ((TextView)dialogView.findViewById(R.id.textView1)).setText(a.getResources().getString(R.string.enterPassword));
                 final EditText input = dialogView.findViewById(R.id.name);
                 final AlertDialog.Builder d = new AlertDialog.Builder(a)
-                        .setMessage(a.getResources().getString(R.string.passwordRequired))
+                        .setMessage(a.getResources().getString(R.string.passwordRequired).replace("%s", uri))
                         .setPositiveButton(a.getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(final DialogInterface dialog1, int which) {

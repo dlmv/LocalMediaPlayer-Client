@@ -16,8 +16,8 @@
     <string name="playlist">Playlist</string>
     <string name="browse">Browse</string>
     <string name="checking">Checking…</string>
-    <string name="enterPassword">Enter Password</string>
-    <string name="passwordRequired">Password Required</string>
+    <string name="enterPassword">Enter Password:</string>
+    <string name="passwordRequired">Password required for \n%s</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="yes">Yes</string>
@@ -30,7 +30,8 @@
     <string name="url">URL:</string>
     <string name="address">Address:</string>
     <string name="port">Port:</string>
-    <string name="enterPath">Enter path</string>
+    <string name="enterPath">Enter path:</string>
+    <string name="enterName">Enter name:</string>
     <string name="play">Play</string>
     <string name="playBackground">Play in background</string>
     <string name="open">Open</string>
@@ -58,6 +59,8 @@
     <string name="unauthorized">Unauthorized</string>
     <string name="login">Login:</string>
     <string name="password">Password:</string>
+    <string name="master_password">Master password:</string>
+    <string name="server_password">New server password:</string>
     <string name="logins">Saved Logins</string>
     <string name="set_password">Set password</string>
     <string name="shareLoginRequired">Login required for: \n%s</string>
