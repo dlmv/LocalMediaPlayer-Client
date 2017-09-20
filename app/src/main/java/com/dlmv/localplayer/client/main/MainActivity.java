@@ -677,14 +677,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		if (!share.endsWith("/")) {
 			share +=  "/";
 		}
-		final NetworkRequest request = geTestRequest();
+		final NetworkRequest request = getTestRequest();
 		request.addPostParameter(ServerPath.PATH, share);
 		request.addPostParameter(ServerPath.LOGIN, login);
 		request.addPostParameter(ServerPath.PASSWORD, password);
 		performRequest(request, false);
 	}
 
-	private NetworkRequest geTestRequest() {
+	private NetworkRequest getTestRequest() {
 		return new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.CHECK_SHARE) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
