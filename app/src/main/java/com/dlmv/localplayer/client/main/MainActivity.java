@@ -378,7 +378,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		});
 		d.setView(dialogView);
 		d.show();
-		setupVolumeDialog();
 	}
 
 	private void setPassword() {
