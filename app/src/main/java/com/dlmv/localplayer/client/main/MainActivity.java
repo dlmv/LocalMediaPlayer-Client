@@ -316,10 +316,6 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			String uri = data.getStringExtra("URI");
 			setUri(uri);
 		}
-		if (requestCode == ApplicationUtil.BOOKMARKS_CODE && resultCode == RESULT_OK) {
-			String path = data.getStringExtra("BOOKMARK");
-			ApplicationUtil.open(this, path);
-		}
 		if (requestCode == ApplicationUtil.BROWSE_CODE && resultCode == RESULT_FIRST_USER) {
 			setProgressBarVisibility(true);
 		}
