@@ -383,7 +383,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	private void setPassword() {
 		View dialogView = View.inflate(this, R.layout.login_dialog, null);
 		((TextView) dialogView.findViewById(R.id.loginText)).setText(getResources().getString(R.string.master_password));
-		((TextView) dialogView.findViewById(R.id.passwordText)).setText(getResources().getString(R.string.password));
+		((TextView) dialogView.findViewById(R.id.passwordText)).setText(getResources().getString(R.string.server_password));
 		final EditText inputL = dialogView.findViewById(R.id.login);
 		final EditText inputP = dialogView.findViewById(R.id.password);
 		inputL.setText("");
