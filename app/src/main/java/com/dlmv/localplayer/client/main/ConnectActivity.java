@@ -271,7 +271,12 @@ public class ConnectActivity extends Activity {
                                 cancelRunnable.run();
                             }
                         });
-
+				d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialogInterface) {
+						cancelRunnable.run();
+					}
+				});
                 d.setView(dialogView);
                 d.show();
             }

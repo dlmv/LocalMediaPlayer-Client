@@ -652,17 +652,19 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				if (e.isUnauthorized()) {
 					if (!myLoginErrorHandled) {
 						myLoginErrorHandled = true;
-						ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {
-							@Override
-							public void run(String password) {
-								setUri(ApplicationUtil.Data.serverUri);
-							}
-						}, new Runnable() {
-							@Override
-							public void run() {
-								setUri(null);
-							}
-						}, true);
+						if (!isFinishing()) {
+							ConnectActivity.tryLogin(MainActivity.this, ApplicationUtil.Data.serverUri, new ConnectActivity.ServerLoginRunnable() {
+								@Override
+								public void run(String password) {
+									setUri(ApplicationUtil.Data.serverUri);
+								}
+							}, new Runnable() {
+								@Override
+								public void run() {
+									setUri(null);
+								}
+							}, true);
+						}
 					}
 				} else {
 					Toast.makeText(MainActivity.this, getResources().getString(R.string.networkError) + "\n" + e.getLocalizedMessage(MainActivity.this), Toast.LENGTH_LONG).show();
@@ -970,6 +972,11 @@ public class MainActivity extends Activity implements OnItemClickListener {
 			myAdapter.notifyDataSetChanged();
 		}
 		return true;
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 
 
