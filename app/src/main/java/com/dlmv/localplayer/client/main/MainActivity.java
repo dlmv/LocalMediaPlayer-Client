@@ -365,8 +365,14 @@ public class MainActivity extends Activity implements OnItemClickListener {
 
 	private void showSettingsDialog() {
 		View dialogView = View.inflate(this, R.layout.settingsdialog, null);
-		final AlertDialog.Builder d = new AlertDialog.Builder(this);
+		final AlertDialog.Builder d = new AlertDialog.Builder(this).setTitle(getResources().getString(R.string.menu_settings));
 		Button passwordButton = dialogView.findViewById(R.id.setPassword);
+		passwordButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				setPassword();
+			}
+		});
 		Button loginsButton = dialogView.findViewById(R.id.editLogins);
 		loginsButton.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -379,7 +385,37 @@ public class MainActivity extends Activity implements OnItemClickListener {
 		setupVolumeDialog();
 	}
 
-	void showLogins() {
+	private void setPassword() {
+		View dialogView = View.inflate(this, R.layout.login_dialog, null);
+		((TextView) dialogView.findViewById(R.id.loginText)).setText(getResources().getString(R.string.master_password));
+		((TextView) dialogView.findViewById(R.id.passwordText)).setText(getResources().getString(R.string.password));
+		final EditText inputL = dialogView.findViewById(R.id.login);
+		final EditText inputP = dialogView.findViewById(R.id.password);
+		inputL.setText("");
+		inputP.setText("");
+		final AlertDialog.Builder d = new AlertDialog.Builder(this)
+				.setPositiveButton(getResources().getString(R.string.ok), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog1, int which) {
+						final String login = inputL.getText().toString();
+						final String password = inputP.getText().toString();
+						final NetworkRequest request = getRequest(ServerPath.SET_PASSWORD);
+						request.addPostParameter(ServerPath.MASTER_PASSWORD, login);
+						request.addPostParameter(ServerPath.PASSWORD, password);
+						performRequest(request, false);
+						dialog1.dismiss();
+					}
+				}).setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog1, int which) {
+						dialog1.dismiss();
+					}
+				});
+		d.setView(dialogView);
+		d.show();
+	}
+
+	private void showLogins() {
 		final NetworkRequest request = new NetworkRequest(ApplicationUtil.Data.serverUri + ServerPath.LOGIN_LIST) {
 			@Override
 			public void handleStream(InputStream inputStream) throws NetworkException {
