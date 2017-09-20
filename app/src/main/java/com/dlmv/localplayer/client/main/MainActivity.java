@@ -402,7 +402,25 @@ public class MainActivity extends Activity implements OnItemClickListener {
 						final NetworkRequest request = getRequest(ServerPath.SET_PASSWORD);
 						request.addPostParameter(ServerPath.MASTER_PASSWORD, login);
 						request.addPostParameter(ServerPath.PASSWORD, password);
-						performRequest(request, false);
+						new Thread() {
+							@Override
+							public void run() {
+								try {
+									NetworkManager.Instance().perform(request);
+								} catch (NetworkException e)  {
+									if (e.isUnauthorized()) {
+										runOnUiThread(new Runnable() {
+											@Override
+											public void run() {
+												setPassword();
+											}
+										});
+									}  else {
+										onNetworkError(e);
+									}
+								}
+							}
+						}.start();
 						dialog1.dismiss();
 					}
 				}).setNegativeButton(getResources().getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -740,6 +758,7 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				setVolumeBar();
 				setupVolumeDialog();
 				getContentView().postInvalidate();
+				setProgressBarVisibility(false);
 			}
 		});
 

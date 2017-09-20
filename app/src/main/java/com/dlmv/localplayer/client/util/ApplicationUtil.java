@@ -115,7 +115,7 @@ public abstract class ApplicationUtil {
 	public static String timeFormat(int s) {
 		int hours = s / 3600;
 		int minutes = s / 60 - hours * 60;
-		int seconds = s - minutes * 60;
+		int seconds = s - minutes * 60 - hours * 3600;
 		String res = "";
 		if (hours > 0) {
 			res += (Integer.toString(hours) + ":");
