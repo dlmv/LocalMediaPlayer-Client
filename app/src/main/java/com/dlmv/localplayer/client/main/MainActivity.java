@@ -639,6 +639,9 @@ public class MainActivity extends Activity implements OnItemClickListener {
 	}
 
 	private boolean myLoginErrorHandled = false;
+	private boolean myShareLoginRequesting = false;
+
+
 
 	void onNetworkError(final NetworkException e) {
 		runOnUiThread(new Runnable() {
@@ -698,12 +701,21 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				final String share = res.myCause.substring("loginNeeded:".length() + 1).trim();
 				runOnUiThread(new Runnable() {
 					public void run() {
-						showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
-							@Override
-							public  void  run(String login, String password) {
-								test(share, login, password);
-							}
-						});
+						if (myShareLoginRequesting == false) {
+							myShareLoginRequesting = true;
+							showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
+								@Override
+								public void run(String login, String password) {
+									myShareLoginRequesting = false;
+									test(share, login, password);
+								}
+							}, new Runnable() {
+								@Override
+								public void run() {
+									myShareLoginRequesting = false;
+								}
+							});
+						}
 					}
 				});
 			} else {
@@ -725,12 +737,21 @@ public class MainActivity extends Activity implements OnItemClickListener {
 				if (!r.myValid) {
 					if (r.myCause.startsWith("loginNeeded:")) {
 						final String share = r.myCause.substring("loginNeeded:".length() + 1).trim();
-						showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
-							@Override
-							public void run(String login, String password) {
-								test(share, login, password);
-							}
-						});
+						if (myShareLoginRequesting == false) {
+							myShareLoginRequesting = true;
+							showLoginDialog(MainActivity.this, share, new ApplicationUtil.LoginRunnable() {
+								@Override
+								public void run(String login, String password) {
+									myShareLoginRequesting = false;
+									test(share, login, password);
+								}
+							}, new Runnable() {
+								@Override
+								public void run() {
+									myShareLoginRequesting = false;
+								}
+							});
+						}
 					} else {
 						Toast.makeText(MainActivity.this, r.myCause, Toast.LENGTH_SHORT).show();
 					}

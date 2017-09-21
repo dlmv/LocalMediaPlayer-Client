@@ -314,8 +314,12 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 					public void run() {
 						showLoginDialog(BrowseActivity.this, share, new ApplicationUtil.LoginRunnable() {
 							@Override
-							public  void  run(String login, String password) {
+							public void run(String login, String password) {
 								test(path, doAfter, login, password);
+							}
+						}, new Runnable() {
+							@Override
+							public void run() {
 							}
 						});
 					}
@@ -353,6 +357,10 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 							@Override
 							public void run(String login, String password) {
 								open(myLocationToOpen, login, password);
+							}
+						}, new Runnable() {
+							@Override
+							public void run() {
 							}
 						});
 						return;

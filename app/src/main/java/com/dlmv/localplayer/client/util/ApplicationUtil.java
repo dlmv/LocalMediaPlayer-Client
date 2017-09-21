@@ -135,7 +135,7 @@ public abstract class ApplicationUtil {
 		void run(String login, String password);
 	}
 
-	public static void showLoginDialog(Context c, final String share, final ApplicationUtil.LoginRunnable runnable) {
+	public static void showLoginDialog(Context c, final String share, final ApplicationUtil.LoginRunnable runnable, final Runnable cancelRunnable) {
 		View dialogView = View.inflate(c, R.layout.login_dialog, null);
 		((TextView) dialogView.findViewById(R.id.loginText)).setText(c.getResources().getString(R.string.login));
 		((TextView) dialogView.findViewById(R.id.passwordText)).setText(c.getResources().getString(R.string.password));
@@ -159,8 +159,15 @@ public abstract class ApplicationUtil {
 					@Override
 					public void onClick(DialogInterface dialog1, int which) {
 						dialog1.dismiss();
+						cancelRunnable.run();
 					}
 				});
+		d.setOnCancelListener(new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialogInterface) {
+				cancelRunnable.run();
+			}
+		});
 		d.setView(dialogView);
 		d.show();
 	}
