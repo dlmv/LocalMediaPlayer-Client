@@ -19,11 +19,16 @@
         android:id="@+id/menu_filter"
         android:icon="@drawable/filter"
         android:title="@string/menu_filter"
-        android:showAsAction="never" />
+        android:showAsAction="ifRoom" />
     <item
         android:id="@+id/menu_open"
         android:icon="@drawable/open"
         android:title="@string/menu_open"
-        android:showAsAction="never" />
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_home"
+        android:icon="@drawable/home"
+        android:title="@string/menu_home"
+        android:showAsAction="ifRoom" />
 
 </menu>

@@ -544,6 +544,7 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		super.onPrepareOptionsMenu(menu);
 		menu.findItem(R.id.menu_search).setVisible(!myLocation.Path.equals(AbsFile.ROOT));
 		menu.findItem(R.id.menu_filter).setVisible(!myLocation.Path.equals(AbsFile.ROOT));
+		menu.findItem(R.id.menu_home).setVisible(!myLocation.Path.equals(AbsFile.ROOT));
 
 		return true;
 	}
@@ -564,6 +565,9 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 		}
 		if (item.getItemId() == R.id.menu_filter) {
 			showFilterDialog();
+		}
+		if (item.getItemId() == R.id.menu_home) {
+			open(AbsFile.ROOT);
 		}
 		return true;
 	}

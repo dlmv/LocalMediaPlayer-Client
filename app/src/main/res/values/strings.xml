@@ -71,6 +71,7 @@
     <string name="device">Device</string>
     <string name="network">Network</string>
     <string name="files">Files</string>
+    <string name="menu_home">Home</string>
 
 
 </resources>
