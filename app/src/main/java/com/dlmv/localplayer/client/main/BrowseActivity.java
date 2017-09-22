@@ -414,9 +414,6 @@ public class BrowseActivity extends Activity implements AdapterView.OnItemClickL
 					ApplicationUtil.Data.history.push(myLocation);
 				}
 				String p = res.myLocation.Path;
-				if (!p.endsWith("/") && !p.equals(AbsFile.ROOT)) {
-					p += "/";
-				}
 				myLocation = new Location(p, res.myLocation.Request);
 				ApplicationUtil.Data.cache.put(myLocation, res.myContent);
 				ApplicationUtil.Data.lastLocation = myLocation;

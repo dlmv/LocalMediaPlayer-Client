@@ -78,9 +78,6 @@ public class AbsFile {
 	
 	public String getPath() {
 		if (Type.equals(MediaType.DIR) || Type.equals(MediaType.UP)) {
-			if (!Path.endsWith("/") && !Path.equals(ROOT) && !Path.equals(SAMBA) && !Path.equals(DEVICE)) {
-				return Path + "/";
-			}
 			return Path;
 		} else {
 			if (Path.endsWith("/")) {

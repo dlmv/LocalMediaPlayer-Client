@@ -13,11 +13,7 @@ public class BookmarksDB {
 		final int Id;
 		
 		public Bookmark(String p, int id) {
-			if (p.endsWith("/")) {
-				Path = p.substring(0, p.length() - 1);
-			} else {
-				Path = p;
-			}
+            Path = p;
 			Id = id;
 		}
 		
@@ -27,9 +23,6 @@ public class BookmarksDB {
 		}
 		
 		public String getPath() {
-			if (!Path.endsWith("/")) {
-				return Path + "/";
-			}
 			return Path;
 		}
 	}
